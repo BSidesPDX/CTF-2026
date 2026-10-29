@@ -1,0 +1,7 @@
+*.db
+**.pyc
+.venv
+__pycache__
+challenge.yaml
+solve.sh
+README.md

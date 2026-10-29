@@ -1,0 +1,22 @@
+{{> head pageTitle=title}}
+<body>
+    {{> company-header subtitle="External Remediation Access"}}
+    <main class="page page-narrow page-center">
+        <div class="card auth-card">
+            <span class="kicker">External Remediation</span>
+            <h1>Contractor Login</h1>
+
+            {{> alert-message}}
+
+            <form method="POST" action="/contractor-login">
+                {{> form-group fieldId="username" fieldName="username" labelText="Contractor ID" inputType="text" required=true}}
+                {{> form-group fieldId="password" fieldName="password" labelText="Intake Password" inputType="password" required=true}}
+                <button type="submit">Open Incident File</button>
+            </form>
+        </div>
+
+        {{> navigation-links links=links}}
+    </main>
+    {{> footer}}
+</body>
+</html>

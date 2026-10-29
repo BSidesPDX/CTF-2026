@@ -1,0 +1,274 @@
+context: {}
+entries:
+- attrs:
+    authentication: none
+    background: ''
+    compatibility_mode: false
+    denied_action: message_continue
+    designation: authentication
+    layout: stacked
+    name: imported-default-auth
+    policy_engine_mode: any
+    title: imported
+  conditions: []
+  identifiers:
+    pk: f6b40ae6-35c8-477b-bd57-0786c09226d1
+    slug: default-authentication-flow
+  model: authentik_flows.flow
+  permissions: []
+  state: present
+- attrs:
+    field_key: extension
+    initial_value: ''
+    initial_value_expression: false
+    label: Confirm Extension
+    name: imported-mfa-confirm-extension
+    order: 0
+    placeholder: ''
+    placeholder_expression: false
+    required: true
+    sub_text: Please confirm your internal phone extension for a verification call.
+    type: number
+  conditions: []
+  identifiers:
+    pk: 9143de53-2c37-4abb-a99d-285ac256e6b8
+  model: authentik_stages_prompt.prompt
+  permissions: []
+  state: present
+- attrs:
+    field_key: totp
+    initial_value: ''
+    initial_value_expression: false
+    label: Enter Verification Code
+    name: imported-mfa-enter-totp
+    order: 0
+    placeholder: ''
+    placeholder_expression: false
+    required: true
+    sub_text: Enter the verification code you recieved over the phone. This code will
+      be valid for 5 minutes.
+    type: text
+  conditions: []
+  identifiers:
+    pk: 93811d55-1fdf-4064-9c4e-c93850cb44ff
+  model: authentik_stages_prompt.prompt
+  permissions: []
+  state: present
+- attrs:
+    execution_logging: false
+    expression: "flow_plan = request.context.get(\"flow_plan\")\nif not flow_plan:\n\
+      \    return True\n# If the user does not have a backend attached to it, they\
+      \ haven't\n# been authenticated yet and we need the password stage\nreturn not\
+      \ hasattr(flow_plan.context.get(\"pending_user\"), \"backend\")"
+    name: imported-default-authentication-flow-password-stage
+  conditions: []
+  identifiers:
+    pk: c5c91af5-0c9c-42e0-a0e4-482e8682cb9e
+  model: authentik_policies_expression.expressionpolicy
+  permissions: []
+  state: present
+- attrs:
+    execution_logging: true
+    expression: 'ext = request.context[''flow_plan''].context["prompt_data"]["extension"]
+
+
+      ak_logger.info(f"triggering call for extension {ext}")
+
+
+      # ak_message(f"We have called extension {ext} with a verification code.")
+
+
+      resp = requests.post(f"http://sip_api:8080/anything/{ext}", data={''extension'':ext})
+
+      ak_logger.info(f"got response {resp}")
+
+
+      return True'
+    name: imported-mfa-trigger-call
+  conditions: []
+  identifiers:
+    pk: 29cadc89-5ee6-43b6-8aba-4b66e653ce78
+  model: authentik_policies_expression.expressionpolicy
+  permissions: []
+  state: present
+- attrs:
+    fields:
+    - 9143de53-2c37-4abb-a99d-285ac256e6b8
+    validation_policies: []
+  conditions: []
+  identifiers:
+    name: imported-mfa-confirm-extension
+    pk: 00b271a2-3ab0-40d4-9c0b-615178b2504b
+  model: authentik_stages_prompt.promptstage
+  permissions: []
+  state: present
+- attrs:
+    allow_show_password: false
+    backends:
+    - authentik.core.auth.InbuiltBackend
+    - authentik.sources.kerberos.auth.KerberosBackend
+    - authentik.sources.ldap.auth.LDAPBackend
+    - authentik.core.auth.TokenBackend
+    failed_attempts_before_cancel: 5
+  conditions: []
+  identifiers:
+    name: imported-default-authentication-password
+    pk: 43bf5393-ee28-4545-93a3-8e3b8d277beb
+  model: authentik_stages_password.passwordstage
+  permissions: []
+  state: present
+- attrs:
+    captcha_stage: null
+    case_insensitive_matching: true
+    enable_remember_me: false
+    enrollment_flow: null
+    password_stage: null
+    passwordless_flow: null
+    pretend_user_exists: true
+    recovery_flow: null
+    show_matched_user: true
+    show_source_labels: false
+    sources: []
+    user_fields:
+    - email
+    - username
+    webauthn_stage: null
+  conditions: []
+  identifiers:
+    name: imported-default-authentication-identification
+    pk: 6cd25469-3bd5-4c95-8bf9-ca0352a5c56d
+  model: authentik_stages_identification.identificationstage
+  permissions: []
+  state: present
+- attrs:
+    geoip_binding: no_binding
+    network_binding: no_binding
+    remember_device: days=30
+    remember_me_offset: seconds=0
+    session_duration: seconds=0
+    terminate_other_sessions: false
+  conditions: []
+  identifiers:
+    name: imported-default-authentication-login
+    pk: 71459e8f-b0e3-4961-872a-841496fba73d
+  model: authentik_stages_user_login.userloginstage
+  permissions: []
+  state: present
+- attrs:
+    fields:
+    - 93811d55-1fdf-4064-9c4e-c93850cb44ff
+    validation_policies: []
+  conditions: []
+  identifiers:
+    name: imported-mfa-prompt-totp
+    pk: 60f137e5-5250-4be8-be42-40199e7ccbfa
+  model: authentik_stages_prompt.promptstage
+  permissions: []
+  state: present
+- attrs:
+    evaluate_on_plan: false
+    invalid_response_action: retry
+    policy_engine_mode: any
+    re_evaluate_policies: true
+  conditions: []
+  identifiers:
+    order: 10
+    pk: de139825-c320-4592-ac0d-4d04163b4303
+    stage: 6cd25469-3bd5-4c95-8bf9-ca0352a5c56d
+    target: f6b40ae6-35c8-477b-bd57-0786c09226d1
+  model: authentik_flows.flowstagebinding
+  permissions: []
+  state: present
+- attrs:
+    evaluate_on_plan: false
+    invalid_response_action: retry
+    policy_engine_mode: any
+    re_evaluate_policies: true
+  conditions: []
+  identifiers:
+    order: 20
+    pk: d9567e7f-6746-4a31-8f6d-d9c80aa09cf9
+    stage: 43bf5393-ee28-4545-93a3-8e3b8d277beb
+    target: f6b40ae6-35c8-477b-bd57-0786c09226d1
+  model: authentik_flows.flowstagebinding
+  permissions: []
+  state: present
+- attrs:
+    evaluate_on_plan: false
+    invalid_response_action: retry
+    policy_engine_mode: any
+    re_evaluate_policies: true
+  conditions: []
+  identifiers:
+    order: 50
+    pk: eb846fe5-024b-40ab-99a2-bec4a484a0ce
+    stage: 00b271a2-3ab0-40d4-9c0b-615178b2504b
+    target: f6b40ae6-35c8-477b-bd57-0786c09226d1
+  model: authentik_flows.flowstagebinding
+  permissions: []
+  state: present
+- attrs:
+    evaluate_on_plan: false
+    invalid_response_action: retry
+    policy_engine_mode: any
+    re_evaluate_policies: true
+  conditions: []
+  identifiers:
+    order: 51
+    pk: ab439008-ceb6-496e-a5cb-ee811ac692b6
+    stage: 60f137e5-5250-4be8-be42-40199e7ccbfa
+    target: f6b40ae6-35c8-477b-bd57-0786c09226d1
+  model: authentik_flows.flowstagebinding
+  permissions: []
+  state: present
+- attrs:
+    evaluate_on_plan: false
+    invalid_response_action: retry
+    policy_engine_mode: any
+    re_evaluate_policies: true
+  conditions: []
+  identifiers:
+    order: 100
+    pk: 22f66230-2f3b-4581-bf44-01f607434df3
+    stage: 71459e8f-b0e3-4961-872a-841496fba73d
+    target: f6b40ae6-35c8-477b-bd57-0786c09226d1
+  model: authentik_flows.flowstagebinding
+  permissions: []
+  state: present
+- attrs:
+    enabled: true
+    failure_result: true
+    group: null
+    negate: false
+    timeout: 30
+    user: null
+  conditions: []
+  identifiers:
+    order: 10
+    pk: 14a36be5-ff16-429d-8e4c-91cf44062153
+    policy: c5c91af5-0c9c-42e0-a0e4-482e8682cb9e
+    target: d9567e7f-6746-4a31-8f6d-d9c80aa09cf9
+  model: authentik_policies.policybinding
+  permissions: []
+  state: present
+- attrs:
+    enabled: true
+    failure_result: false
+    group: null
+    negate: false
+    timeout: 30
+    user: null
+  conditions: []
+  identifiers:
+    order: 0
+    pk: 795c96fd-2d80-4d76-918f-b52ab9265bdd
+    policy: 29cadc89-5ee6-43b6-8aba-4b66e653ce78
+    target: ab439008-ceb6-496e-a5cb-ee811ac692b6
+  model: authentik_policies.policybinding
+  permissions: []
+  state: present
+metadata:
+  labels:
+    blueprints.goauthentik.io/generated: 'true'
+  name: imported-authentik Export - 2026-03-21 07:36:00.177474+00:00
+version: 1

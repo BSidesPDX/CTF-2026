@@ -1,0 +1,374 @@
+{{> head customStyles="
+        /* ── Landing page ────────────────────────────── */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            padding: 0.85rem 2rem;
+            background: rgba(11, 25, 38, 0.94);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(223, 165, 97, 0.28);
+            color: #eef3f7;
+        }
+        .nav-links { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+        .nav-links a {
+            color: #c3d0dc;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            padding: 0.45rem 0.85rem;
+            border-radius: 8px;
+            transition: color 0.15s, background 0.15s;
+        }
+        .nav-links a:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+
+        .epa-banner {
+            display: block;
+            background: var(--warn-bg);
+            border-bottom: 1px solid var(--warn-line);
+            border-left: 6px solid #b7791f;
+            color: var(--warn-text);
+            text-decoration: none;
+            padding: 0.85rem 2rem;
+            transition: background 0.15s;
+        }
+        .epa-banner:hover { background: #f8ecd2; }
+        .epa-banner-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .epa-banner-badge {
+            flex: none;
+            font-size: 0.66rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #fff;
+            background: #b7791f;
+            border-radius: 4px;
+            padding: 0.3rem 0.6rem;
+            white-space: nowrap;
+        }
+        .epa-banner-text { flex: 1; min-width: 260px; font-size: 0.85rem; line-height: 1.5; }
+        .epa-banner-text strong { color: #744f0e; }
+        .epa-banner-cta { flex: none; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(165deg, #0b1926 0%, #122a3f 55%, #173854 100%);
+            color: #e8eef4;
+            padding: 6rem 2rem 5.5rem;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            left: -20%; right: -20%; bottom: -60%;
+            height: 120%;
+            background: radial-gradient(ellipse at 50% 100%, rgba(223, 165, 97, 0.2), transparent 62%);
+            pointer-events: none;
+        }
+        .hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(175deg, transparent 0 110px, rgba(255, 255, 255, 0.035) 110px 111px);
+            pointer-events: none;
+        }
+        .hero-inner { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; text-align: center; }
+        .hero-kicker {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+        .hero-title {
+            font-size: clamp(2.2rem, 5vw, 3.4rem);
+            font-weight: 700;
+            line-height: 1.08;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+            margin: 0.9rem 0 1.2rem;
+        }
+        .hero-lead { font-size: 1.08rem; color: #b9c7d4; max-width: 660px; margin: 0 auto 2.3rem; }
+        .hero-actions { display: flex; gap: 0.9rem; justify-content: center; flex-wrap: wrap; }
+        .hero-actions .button { padding: 0.85rem 1.7rem; font-size: 1rem; }
+        .button-ghost { background: transparent; border: 1px solid rgba(255, 255, 255, 0.4); color: #fff; }
+        .button-ghost:hover { background: rgba(255, 255, 255, 0.1); }
+
+        .stats-band {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1px;
+            background: var(--line);
+            border-bottom: 1px solid var(--line);
+        }
+        .stats-band > div { background: var(--card); padding: 1.6rem 1rem; text-align: center; }
+        .stat-num { display: block; font-size: 1.7rem; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
+        .stat-cap { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+        .section { max-width: 1100px; margin: 0 auto; padding: 4.5rem 2rem 0.5rem; }
+        .section-head { text-align: center; margin-bottom: 2.5rem; }
+        .section-head h2 { font-size: 1.9rem; margin-bottom: 0.75rem; }
+        .section-lead { color: var(--muted); max-width: 720px; margin: 0 auto; }
+
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; }
+        .feature-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.75rem; }
+        .feature-icon {
+            width: 44px; height: 44px;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--sand);
+            border-radius: 10px;
+            color: var(--copper);
+            margin-bottom: 1rem;
+        }
+        .feature-icon svg { width: 24px; height: 24px; }
+        .feature-card h3 { font-size: 1.05rem; margin-bottom: 0.5rem; }
+        .feature-card p { color: var(--muted); font-size: 0.95rem; margin: 0; }
+
+        .service-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; }
+        .service-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.5rem 1.6rem; }
+        .service-num { display: block; font-family: var(--mono); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em; color: var(--copper); margin-bottom: 0.6rem; }
+        .service-card h3 { font-size: 1rem; margin-bottom: 0.4rem; }
+        .service-card p { color: var(--muted); font-size: 0.92rem; margin: 0; }
+
+        .contact-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 2rem;
+            padding: 2.25rem;
+        }
+        .contact-card p { margin: 0 0 0.4rem; }
+        .contact-label { display: block; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+        .contact-side { border-left: 1px solid var(--line); padding-left: 2rem; }
+
+        .landing-footer {
+            margin-top: 4.5rem;
+            background: var(--ink);
+            color: #93a5b6;
+            padding: 2.75rem 2rem;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+        .landing-footer .brand { justify-content: center; margin-bottom: 1rem; }
+
+        @media (max-width: 768px) {
+            .top-nav { justify-content: center; }
+            .hero { padding: 4rem 1.25rem 3.5rem; }
+            .section { padding: 3rem 1.25rem 0.5rem; }
+            .contact-card { grid-template-columns: 1fr; }
+            .contact-side { border-left: none; padding-left: 0; border-top: 1px solid var(--line); padding-top: 1.5rem; }
+        }
+"}}
+<body>
+    <!-- Navigation -->
+    <nav class="top-nav">
+        <a class="brand" href="/">
+            {{> brand-mark}}
+            <span class="brand-text">
+                <span class="brand-name">Ellingson Mineral</span>
+                <span class="brand-tag">Corporation</span>
+            </span>
+        </a>
+        <div class="nav-links">
+            {{#each navigationLinks}}
+            <a href="{{url}}">{{text}}</a>
+            {{/each}}
+        </div>
+    </nav>
+
+    <!-- Environmental advisory banner -->
+    <a class="epa-banner" href="/incident">
+        <span class="epa-banner-inner">
+            <span class="epa-banner-badge">Environmental Advisory</span>
+            <span class="epa-banner-text">
+                <strong>Public Notice BR-MH-0427:</strong> Pursuant to EPCRA §304 and 40 CFR Part 302,
+                Ellingson Mineral Corporation discloses an active release investigation and remediation
+                action at the Bracken Ridge facility. Community right-to-know materials are available
+                in the public incident bulletin.
+            </span>
+            <span class="epa-banner-cta">View Bulletin →</span>
+        </span>
+    </a>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-inner">
+            <span class="hero-kicker">Global Deep-Sea Mineral Operations</span>
+            <h1 class="hero-title">{{subtitle}}</h1>
+            <p class="hero-lead">
+                Pioneering the future of critical mineral supply through advanced deep-sea
+                mining operations in the world's most challenging ultra-deep water environments —
+                recovering previously unreachable seafloor deposits from the deepest ocean
+                trenches, including the Mariana Trench.
+            </p>
+            <div class="hero-actions">
+                <a href="/login" class="button">Employee Portal</a>
+                <a href="#services" class="button button-ghost">Our Services</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <div class="stats-band">
+        <div><span class="stat-num">11,000&nbsp;m</span><span class="stat-cap">Max operating depth</span></div>
+        <div><span class="stat-num">20+</span><span class="stat-cap">Years in operation</span></div>
+        <div><span class="stat-num">99.98%</span><span class="stat-cap">Recovery efficiency</span></div>
+        <div><span class="stat-num">24/7</span><span class="stat-cap">Environmental monitoring</span></div>
+    </div>
+
+    <!-- About -->
+    <section id="about" class="section">
+        <div class="section-head">
+            <span class="kicker">Who we are</span>
+            <h2>About Ellingson Mineral Corporation</h2>
+            <p class="section-lead">
+                For over two decades, Ellingson Mineral Corporation has been at the forefront of
+                deep-sea mineral extraction technology. Our specialized focus on ultra-deep
+                water mining has positioned us as the industry leader in sustainable and
+                efficient seafloor extraction operations.
+            </p>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                        <path d="M2 8c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2 2.5-2 5-2"/>
+                        <path d="M2 15c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2 2.5-2 5-2"/>
+                    </svg>
+                </div>
+                <h3>Ultra-Deep Operations</h3>
+                <p>Specialized equipment and technology for operations in depths exceeding
+                10,000 meters, including the Mariana Trench and other extreme deep-water
+                environments.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 3l6.5 3.75v7.5L12 18l-6.5-3.75v-7.5z"/>
+                        <path d="M12 10.5V18M5.5 6.75L12 10.5l6.5-3.75"/>
+                    </svg>
+                </div>
+                <h3>Seafloor Extraction Expertise</h3>
+                <p>Advanced recovery techniques designed for polymetallic nodules and deep-ore
+                deposits, ensuring maximum yield and purity from the most challenging geological
+                formations.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 3l7 3v5c0 4.4-2.9 7.5-7 9-4.1-1.5-7-4.6-7-9V6z"/>
+                        <path d="M9 11.5l2 2 4-4"/>
+                    </svg>
+                </div>
+                <h3>Cutting-Edge Technology</h3>
+                <p>Proprietary mining systems and environmental protection protocols that
+                minimize ecological impact while maximizing extraction efficiency.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services -->
+    <section id="services" class="section">
+        <div class="section-head">
+            <span class="kicker">What we do</span>
+            <h2>Our Services</h2>
+            <p class="section-lead">
+                Comprehensive deep-sea mining and extraction solutions for the most
+                demanding deep-water environments.
+            </p>
+        </div>
+
+        <div class="service-grid">
+            <div class="service-card">
+                <span class="service-num">01</span>
+                <h3>Deep-Sea Survey &amp; Mapping</h3>
+                <p>Advanced sonar and geological mapping of ultra-deep water locations to
+                identify optimal extraction sites with precision targeting.</p>
+            </div>
+            <div class="service-card">
+                <span class="service-num">02</span>
+                <h3>Specialized Extraction</h3>
+                <p>Custom-designed mining systems for seafloor mineral extraction in extreme
+                pressure environments up to 11,000 meters depth.</p>
+            </div>
+            <div class="service-card">
+                <span class="service-num">03</span>
+                <h3>Environmental Monitoring</h3>
+                <p>Continuous monitoring and protection protocols to ensure minimal ecological
+                impact during extraction operations in sensitive deep-water ecosystems.</p>
+            </div>
+            <div class="service-card">
+                <span class="service-num">04</span>
+                <h3>Processing &amp; Refinement</h3>
+                <p>On-site processing facilities for immediate ore concentration and
+                refinement, ensuring maximum purity and value retention.</p>
+            </div>
+            <div class="service-card">
+                <span class="service-num">05</span>
+                <h3>Logistics &amp; Transport</h3>
+                <p>Specialized deep-water transport systems for safe and secure delivery of
+                recovered seafloor minerals to onshore processing facilities.</p>
+            </div>
+            <div class="service-card">
+                <span class="service-num">06</span>
+                <h3>Research &amp; Development</h3>
+                <p>Ongoing R&amp;D programs to advance deep-sea mining technology and improve
+                extraction efficiency and environmental safety.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="section">
+        <div class="section-head">
+            <span class="kicker">Get in touch</span>
+            <h2>Contact Information</h2>
+        </div>
+
+        <div class="contact-card">
+            <div>
+                <span class="contact-label">Corporate Headquarters</span>
+                <p><strong>Ellingson Mineral Corporation</strong></p>
+                <p>Deep Sea Operations Division</p>
+                <p>Mariana Trench Research Facility</p>
+                <p>Pacific Ocean, Coordinates: 11°21' N, 142°12' E</p>
+            </div>
+            <div class="contact-side">
+                <span class="contact-label">Direct Lines</span>
+                <p>Email: <a href="mailto:operations@ellingsonmineral.com">operations@ellingsonmineral.com</a></p>
+                <p>Emergency Contact: +1-800-DEEP-SEA</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+        <a class="brand" href="/">
+            {{> brand-mark}}
+        </a>
+        <div>© 2025 Ellingson Mineral Corporation. All rights reserved.</div>
+        <div>Deep-Sea Mining &amp; Extraction · Environmental Stewardship</div>
+    </footer>
+</body>
+</html>

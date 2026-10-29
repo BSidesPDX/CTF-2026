@@ -1,0 +1,82 @@
+- attrs:
+    field_key: extension
+    initial_value: ''
+    initial_value_expression: false
+    label: Confirm Extension
+    name: mfa-confirm-extension
+    order: 0
+    placeholder: ''
+    placeholder_expression: false
+    required: true
+    sub_text: Please confirm your internal phone extension for a verification call.
+    type: number
+  conditions: []
+  identifiers:
+    pk: 9143de53-2c37-4abb-a99d-285ac256e6b8
+  model: authentik_stages_prompt.prompt
+  permissions: []
+  state: present
+- attrs:
+    field_key: totp
+    initial_value: ''
+    initial_value_expression: false
+    label: Enter Verification Code
+    name: mfa-enter-totp
+    order: 0
+    placeholder: ''
+    placeholder_expression: false
+    required: true
+    sub_text: Enter the verification code you received over the phone. This code will
+      be valid for 5 minutes.
+    type: text
+  conditions: []
+  identifiers:
+    pk: 93811d55-1fdf-4064-9c4e-c93850cb44ff
+  model: authentik_stages_prompt.prompt
+  permissions: []
+  state: present
+
+- attrs:
+    execution_logging: true
+    expression: 'ext = request.context[''flow_plan''].context["prompt_data"]["extension"]
+
+
+      ak_logger.info(f"triggering call for extension {ext}")
+
+
+      info_resp = requests.get(f"http://instance-manager:8080/info?ext={ext}")
+
+      info_resp.raise_for_status()
+
+      trigger_url = info_resp.json()["trigger_service"]
+
+      ak_logger.info(f"got trigger service url: {trigger_url}")
+
+
+      resp = requests.post(trigger_url)
+
+      ak_logger.info(f"got response {resp}")
+
+
+      ak_message(f"We have called extension {ext} with a verification code.")
+
+
+      return True'
+    name: mfa-trigger-call
+  conditions: []
+  identifiers:
+    pk: 29cadc89-5ee6-43b6-8aba-4b66e653ce78
+  model: authentik_policies_expression.expressionpolicy
+  permissions: []
+  state: present
+- attrs:
+    fields:
+    - 9143de53-2c37-4abb-a99d-285ac256e6b8
+    validation_policies: []
+  conditions: []
+  identifiers:
+    name: mfa-confirm-extension
+    pk: 00b271a2-3ab0-40d4-9c0b-615178b2504b
+  model: authentik_stages_prompt.promptstage
+  permissions: []
+  state: present

@@ -1,0 +1,16 @@
+<div class="user-item">
+    <div class="user-info">
+        <div class="user-name">{{this.teamName}}</div>
+        <div class="user-permission">Current Access Level: {{this.permission}}</div>
+    </div>
+    <div class="permission-controls">
+        <form method="POST" action="/admin/update-permission" style="display: flex; gap: 0.5rem; align-items: center;">
+            <input type="hidden" name="userId" value="{{this.id}}">
+            <select name="permission">
+                <option value="user" {{#if (eq this.permission "user")}}selected{{/if}}>Standard Employee</option>
+                <option value="admin" {{#if (eq this.permission "admin")}}selected{{/if}}>Administrator</option>
+            </select>
+            <button type="submit">Update Access</button>
+        </form>
+    </div>
+</div>

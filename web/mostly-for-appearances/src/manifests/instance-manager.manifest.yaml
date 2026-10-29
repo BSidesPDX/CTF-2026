@@ -1,0 +1,90 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: phone-manager-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: phone-manager-role
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["pods", "services", "configmaps", "persistentvolumeclaims", "serviceaccounts", "secrets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets", "replicasets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: phone-manager-rb
+subjects:
+  - kind: ServiceAccount
+    name: phone-manager-sa
+    namespace: rcds-web-mostly-for-appearances
+roleRef:
+  kind: ClusterRole
+  name: phone-manager-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: instance-manager
+  labels:
+    app: instance-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: instance-manager
+  template:
+    metadata:
+      labels:
+        app: instance-manager
+    spec:
+      serviceAccountName: phone-manager-sa
+      imagePullSecrets:
+        - name: rcds-web-mostly-for-appearances-pull
+      containers:
+        - name: instance-manager
+          image: registry.digitalocean.com/bsidesctf26-prod/web-mostly-for-appearances-instance-manager:prod
+          imagePullPolicy: Always
+          resources:
+            requests: { cpu: 10m, memory: 100Mi }
+            # bursty start
+            # limits: { cpu: 200m, memory: 150Mi }
+          env:
+            - name: PHONE_DOMAIN
+              value: sip-proxy.${base_domain}
+            - name: RESERVED_TTL
+              value: "3"
+            - name: DEPLOYED_TTL
+              value: "12"
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+            periodSeconds: 30
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: instance-manager
+spec:
+  selector:
+    app: instance-manager
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

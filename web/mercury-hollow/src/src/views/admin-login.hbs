@@ -1,0 +1,24 @@
+{{> head pageTitle="Administrative Access"}}
+<body>
+    {{> company-header subtitle="Administrative Access"}}
+    <main class="page page-narrow page-center">
+        <div class="card auth-card">
+            <span class="kicker">Administration</span>
+            <h1>Administrative Login</h1>
+
+            {{> alert-message}}
+
+            {{> security-notice}}
+
+            <form method="POST" action="/admin-login">
+                {{> form-group fieldId="teamName" fieldName="teamName" labelText="Administrator ID" inputType="text" required=true}}
+                {{> form-group fieldId="password" fieldName="password" labelText="Security Password" inputType="password" required=true}}
+                <button type="submit">Access Administrative Panel</button>
+            </form>
+        </div>
+
+        {{> navigation-links links=adminLoginLinks}}
+    </main>
+    {{> footer}}
+</body>
+</html>

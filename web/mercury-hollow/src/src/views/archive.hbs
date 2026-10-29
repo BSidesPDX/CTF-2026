@@ -1,0 +1,251 @@
+{{> head pageTitle=title customStyles="
+        .vault-toolbar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .vault-id { margin: 0; color: var(--muted); font-family: var(--mono); font-size: 0.82rem; }
+        .vault-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.6fr) minmax(270px, 0.8fr);
+            gap: 1.25rem;
+            align-items: start;
+        }
+        .section-label {
+            display: block;
+            margin-bottom: 0.35rem;
+            color: var(--muted);
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+        .record-set {
+            margin-top: 1.1rem;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .record-item {
+            display: grid;
+            grid-template-columns: 42px minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 0.9rem;
+            padding: 0.95rem;
+            border-bottom: 1px solid var(--line);
+            background: #fbfaf7;
+        }
+        .record-item:last-child { border-bottom: 0; }
+        .record-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            background: var(--sand);
+            color: var(--copper-dark);
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            font-weight: 700;
+        }
+        .record-copy { min-width: 0; }
+        .record-copy strong { display: block; color: var(--ink); font-size: 0.9rem; }
+        .record-copy span { display: block; color: var(--muted); font-size: 0.76rem; overflow-wrap: anywhere; }
+        .record-action { font-size: 0.8rem; white-space: nowrap; }
+        .record-status { color: var(--muted); font-family: var(--mono); font-size: 0.7rem; }
+        .metadata-list { border-top: 1px solid var(--line); margin-top: 1rem; }
+        .metadata-row {
+            display: grid;
+            grid-template-columns: minmax(120px, 0.65fr) minmax(0, 1.35fr);
+            gap: 1rem;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid var(--line);
+            font-size: 0.84rem;
+        }
+        .metadata-row span:first-child { color: var(--muted); }
+        .metadata-row code { border: 0; background: none; padding: 0; color: var(--ink); text-align: right; }
+        .activity-table { width: 100%; border-collapse: collapse; margin-top: 0.8rem; font-size: 0.82rem; }
+        .activity-table th {
+            color: var(--muted);
+            font-size: 0.66rem;
+            letter-spacing: 0.1em;
+            text-align: left;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--line);
+            padding: 0.55rem;
+        }
+        .activity-table td { border-bottom: 1px solid var(--line); padding: 0.7rem 0.55rem; vertical-align: top; }
+        .activity-table td:first-child { color: var(--muted); font-family: var(--mono); white-space: nowrap; }
+        .platform-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; margin-top: 0.8rem; }
+        .platform-field { border: 1px solid var(--line); border-radius: 8px; padding: 0.7rem; background: #fbfaf7; }
+        .platform-field span { display: block; color: var(--muted); font-size: 0.63rem; letter-spacing: 0.08em; text-transform: uppercase; }
+        .platform-field code { display: block; border: 0; background: none; padding: 0.2rem 0 0; color: var(--ink); }
+        .hold-notice {
+            border-left: 3px solid var(--copper);
+            padding: 0.8rem 0.9rem;
+            background: var(--sand);
+            color: var(--text);
+            font-size: 0.8rem;
+            margin-top: 1rem;
+        }
+        @media (max-width: 760px) {
+            .vault-layout { grid-template-columns: 1fr; }
+            .record-item { grid-template-columns: 42px minmax(0, 1fr); }
+            .record-action, .record-status { grid-column: 1 / -1; }
+            .record-action { width: 100%; text-align: center; }
+            .metadata-row { grid-template-columns: 1fr; gap: 0.15rem; }
+            .metadata-row code { text-align: left; }
+            .activity-table th:nth-child(3), .activity-table td:nth-child(3) { display: none; }
+        }
+"}}
+<body>
+    {{> company-header subtitle="Project JANUS Records Vault"}}
+    <!-- JANUS-MIGRATION 7C: legacy upstream=/ops/{namespace}/{case-slug}/{role}; retain through hold release -->
+    <main class="page" style="max-width: 1080px;">
+        <div class="page-head vault-toolbar">
+            <div>
+                <span class="kicker">Controlled Records Services</span>
+                <h1>{{projectCode}} Records Vault</h1>
+                <p class="vault-id">Envelope {{fieldPacketCode}} · Archive node AR-03</p>
+            </div>
+            <div>
+                <span class="chip chip-active">Migration Hold</span>
+                <span class="chip chip-ok">External Read</span>
+            </div>
+        </div>
+
+        <div class="flag">
+            <span class="flag-caption">Archive Verification Token</span>
+            {{flag}}
+        </div>
+
+        <div class="vault-layout">
+            <section>
+                <div class="card">
+                    <span class="section-label">Record Collection</span>
+                    <h2>Emergency Controls Migration Set 7C</h2>
+                    <p>Retained records associated with the {{incidentName}} remediation envelope.</p>
+
+                    <div class="record-set">
+                        <div class="record-item">
+                            <div class="record-icon">LOG</div>
+                            <div class="record-copy">
+                                <strong>JANUS Migration Audit</strong>
+                                <span>janus-migration-audit.jsonl · Platform Operations</span>
+                            </div>
+                            <a class="button record-action" href="/challenge-downloads/janus-migration-audit.jsonl">Download</a>
+                        </div>
+                        <div class="record-item">
+                            <div class="record-icon">RCPT</div>
+                            <div class="record-copy">
+                                <strong>Field Intake Receipt</strong>
+                                <span>{{fieldPacketCode}}.transfer · Northline intake</span>
+                            </div>
+                            <span class="record-status">RETAINED</span>
+                        </div>
+                        <div class="record-item">
+                            <div class="record-icon">ACL</div>
+                            <div class="record-copy">
+                                <strong>Emergency Access Snapshot</strong>
+                                <span>legacy-console.acl · Identity Services</span>
+                            </div>
+                            <span class="record-status">SEALED</span>
+                        </div>
+                    </div>
+
+                    <div class="metadata-list">
+                        <div class="metadata-row">
+                            <span>Collection owner</span>
+                            <code>PLATFORM-OPS</code>
+                        </div>
+                        <div class="metadata-row">
+                            <span>Migration batch</span>
+                            <code>JANUS-7C</code>
+                        </div>
+                        <div class="metadata-row">
+                            <span>Gateway policy</span>
+                            <code>LEGACY-RETAIN</code>
+                        </div>
+                        <div class="metadata-row">
+                            <span>Review status</span>
+                            <code>HOLD / DO NOT NORMALIZE</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="section-label">Migration Activity</span>
+                    <h2>Batch Event Log</h2>
+                    <table class="activity-table">
+                        <thead>
+                            <tr><th>Time</th><th>Event</th><th>Actor</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>02:08</td><td>Legacy emergency-control records indexed</td><td>MIGRATION-SVC</td></tr>
+                            <tr><td>02:11</td><td>Edge namespace mapping retained</td><td>BR-LEGACY</td></tr>
+                            <tr><td>02:13</td><td>Source annotations preserved under hold</td><td>RECORDS-SVC</td></tr>
+                            <tr><td>02:16</td><td>External read authorization issued</td><td>JANUS-IAM</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <aside>
+                <div class="card">
+                    <span class="section-label">Case Envelope</span>
+                    <h2>{{fieldPacketCode}}</h2>
+                    <div class="metadata-list">
+                        <div class="metadata-row">
+                            <span>Facility</span>
+                            <code>{{facilityName}}</code>
+                        </div>
+                        <div class="metadata-row">
+                            <span>Incident</span>
+                            <code>{{incidentName}}</code>
+                        </div>
+                        <div class="metadata-row">
+                            <span>Program</span>
+                            <code>{{projectCode}}</code>
+                        </div>
+                        <div class="metadata-row">
+                            <span>Classification</span>
+                            <code>RESTRICTED</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="section-label">Platform Status</span>
+                    <h2>Archive Node AR-03</h2>
+                    <div class="platform-grid">
+                        <div class="platform-field">
+                            <span>Gateway</span>
+                            <code>BR-LEGACY</code>
+                        </div>
+                        <div class="platform-field">
+                            <span>Headers</span>
+                            <code>RETAINED</code>
+                        </div>
+                        <div class="platform-field">
+                            <span>Annotations</span>
+                            <code>PRESERVED</code>
+                        </div>
+                        <div class="platform-field">
+                            <span>Integrity</span>
+                            <code>VERIFIED</code>
+                        </div>
+                    </div>
+                    <div class="hold-notice">Migration hold 7C prohibits modification of gateway response metadata and archived source annotations.</div>
+                </div>
+            </aside>
+        </div>
+
+        <div class="links">
+            <a href="/contractor">Contractor Workspace</a>
+        </div>
+    </main>
+    {{> footer}}
+</body>
+</html>

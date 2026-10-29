@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+models/
+calls/
+*.wav
+!sounds/*.wav
+.DS_Store
+bench/runs/
+logs/
+.idea/
+.ruff_cache/

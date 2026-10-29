@@ -1,0 +1,21 @@
+{{> head pageTitle="Employee Registration"}}
+<body>
+    {{> company-header subtitle="Employee Registration"}}
+    <main class="page page-narrow page-center">
+        <div class="card auth-card">
+            <span class="kicker">Human Resources</span>
+            <h1>New Employee Registration</h1>
+
+            {{> alert-message}}
+
+            <form method="POST" action="/register">
+                {{> form-group fieldId="teamName" fieldName="teamName" labelText="Employee ID" inputType="text" required=true}}
+                <button type="submit">Register Employee</button>
+            </form>
+        </div>
+
+        {{> navigation-links links=registerLinks}}
+    </main>
+    {{> footer}}
+</body>
+</html>

@@ -1,0 +1,157 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apache
+  labels:
+    app: apache
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: apache
+  template:
+    metadata:
+      labels:
+        app: apache
+    spec:
+      imagePullSecrets:
+        - name: rcds-web-mostly-for-appearances-pull
+      containers:
+        - name: apache
+          image: registry.digitalocean.com/bsidesctf26-prod/web-mostly-for-appearances-apache:prod
+          imagePullPolicy: Always
+          resources:
+            requests: { cpu: 30m, memory: 30Mi }
+            # limits: { cpu: 100m, memory: 80Mi }
+          ports:
+            - containerPort: 80
+
+        - name: voip-manager
+          image: registry.digitalocean.com/bsidesctf26-prod/web-mostly-for-appearances-voip-manager:prod
+          imagePullPolicy: Always
+          resources:
+            requests: { cpu: 30m, memory: 80Mi }
+            # limits: { cpu: 100m, memory: 150Mi }
+          env:
+            - name: PHONE_MANAGER_HOST
+              value: "instance-manager:8080"
+            - name: SECRET_KEY
+              value: mgr9czOG7EyKxgLUra6l2jqFReElpYqIqkm
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8000
+            periodSeconds: 60
+
+        - name: voip-manager-ping
+          image: registry.digitalocean.com/bsidesctf26-prod/web-mostly-for-appearances-voip-manager:prod
+          command: ["uv", "run", "python3", "/app/ping.py"]
+          imagePullPolicy: Always
+          resources:
+            requests: { cpu: 10m, memory: 80Mi }
+            # limits: { cpu: 20m, memory: 100Mi }
+          env:
+            - name: PING_CONTAINER
+              value: "1"
+            - name: VOIP_HOST
+              value: "voipadmin.${base_domain}"
+
+      hostAliases:
+        # compat with local docker-compose
+        - ip: 127.0.0.1
+          hostnames:
+            - voip-manager
+            - apache
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apache
+spec:
+  selector:
+    app: apache
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: apache
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: beavercds
+  tls:
+    - hosts:
+        - ${base_domain}
+        - voipadmin.${base_domain}
+      secretName: apache-tls
+  rules:
+    - host: ${base_domain}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: apache
+                port:
+                  number: 80
+    - host: voipadmin.${base_domain}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: apache
+                port:
+                  number: 80
+---
+# # Restrict the SSRF to only this namespace
+# apiVersion: networking.k8s.io/v1
+# kind: NetworkPolicy
+# metadata:
+#   name: mfa-apache-ssrf-isolation
+# spec:
+#   podSelector: {}  # applies to all pods in this namespace
+#   policyTypes:
+#     - Ingress
+#     - Egress
+#   ingress:
+#     # Allow traffic from within the same namespace
+#     - from:
+#         - podSelector: {}
+#     # Allow traffic from the ingress controller namespace
+#     - from:
+#         - namespaceSelector:
+#             matchLabels:
+#               kubernetes.io/metadata.name: ingress
+#       ports:
+#         - protocol: TCP
+#           port: 80
+#     # Allow traffic from the authentik namespace (e.g. for outpost/forward-auth)
+#     - from:
+#         - namespaceSelector:
+#             matchLabels:
+#               kubernetes.io/metadata.name: web-mfa-authentik
+#       ports:
+#         - protocol: TCP
+#           port: 80
+#   egress:
+#     # Allow traffic within the same namespace
+#     - to:
+#         - podSelector: {}
+#     # Allow DNS resolution
+#     - to:
+#         - namespaceSelector:
+#             matchLabels:
+#               kubernetes.io/metadata.name: kube-system
+#       ports:
+#         - protocol: UDP
+#           port: 53
+#         - protocol: TCP
+#           port: 53

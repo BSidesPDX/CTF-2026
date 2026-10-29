@@ -1,0 +1,12 @@
+[project]
+name = "voip-phone"
+version = "0.1.0"
+description = "Simulated VoIP desk phone UI with packet capture tooling."
+requires-python = ">=3.10"
+dependencies = [
+    "flask>=3.0.0",
+    "flask-login>=0.6.3",
+    "gunicorn>=25.3.0",
+    "peewee>=3.17.0",
+    "pyotp>=2.9.0",
+]

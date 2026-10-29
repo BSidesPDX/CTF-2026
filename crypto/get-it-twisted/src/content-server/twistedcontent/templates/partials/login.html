@@ -1,0 +1,16 @@
+<div class="container d-flex flex-column mb-4 p-2 w-100">
+    <p>Login to access your emails.</p>
+    <form id="login_form" action="{{twisted_auth_url}}/login/" method="post" class="d-flex flex-column mb-4">
+        <div class="input-group mb-2">
+            <span class="input-group-text border-primary" id="basic-addon1">Username</span>
+            <input type="text" class="form-control border-primary" name="username" maxlength="1000" required="">
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text border-primary" id="basic-addon1">Password</span>
+            <input type="password" class="form-control border-primary" name="password" maxlength="1000" required="">
+        </div>
+        <div class="input-group justify-content-end">
+            <button class="btn btn-outline-primary my-1" type="submit">Login</button>
+        </div>
+    </form>
+</div>

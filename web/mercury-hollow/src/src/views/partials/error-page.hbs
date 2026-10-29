@@ -1,0 +1,23 @@
+<div class="error-icon">{{icon}}</div>
+<h1>{{errorTitle}}</h1>
+
+<div class="error-message">
+    {{errorMessage}}
+</div>
+
+{{#if errorDetails}}
+<div class="error-details">
+    <div class="error-code">Security Error {{errorCode}}: {{errorDetail}}</div>
+    <div>{{errorDescription}}</div>
+</div>
+{{/if}}
+
+{{#if returnButton}}
+<a href="{{returnUrl}}" class="button return-button">{{returnButtonText}}</a>
+{{/if}}
+
+{{#if helpText}}
+<div class="help-text">
+    {{helpText}}
+</div>
+{{/if}}

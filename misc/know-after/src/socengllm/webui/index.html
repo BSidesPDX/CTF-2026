@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Call transcripts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #ffffff; --ink: #000000; --faint: #6f6f6f; --rule: #d6d6d6; --row: #f2f2f2;
+    --red: #c62828; --amber: #a85f00; --marker: #fff15c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #1f1f1f; --ink: #ededed; --faint: #9b9b9b; --rule: #3c3c3c; --row: #2a2a2a;
+      --red: #ff7373; --amber: #ffb454; --marker: #d9c200;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #1f1f1f; --ink: #ededed; --faint: #9b9b9b; --rule: #3c3c3c; --row: #2a2a2a;
+    --red: #ff7373; --amber: #ffb454; --marker: #d9c200;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { background: var(--paper); color: var(--ink); font: 15px/1.55 "Courier Prime", "Courier New", Courier, ui-monospace, monospace; display: flex; }
+  a { color: inherit; }
+  button, input, select { font: inherit; color: inherit; background: var(--paper); border: 1px solid var(--rule); border-radius: 0; padding: 4px 8px; }
+  input:focus-visible, select:focus-visible, button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+
+  /* ledger of calls */
+  #ledger { width: 380px; min-width: 300px; height: 100vh; display: flex; flex-direction: column; border-right: 1px solid var(--rule); }
+  #ledger h1 { font-size: 15px; font-weight: 700; margin: 0; padding: 18px 20px 10px; }
+  #ledger .tools { display: flex; gap: 8px; padding: 0 20px 12px; }
+  #ledger .tools input { flex: 1; min-width: 0; }
+  #rows { overflow-y: auto; flex: 1; border-top: 1px solid var(--rule); }
+  .r { display: grid; grid-template-columns: 1fr auto; gap: 0 12px; padding: 10px 20px; border-bottom: 1px solid var(--rule); cursor: pointer; }
+  .r:hover { background: var(--row); }
+  .r.sel { background: var(--row); }
+  .r .n { font-weight: 700; }
+  .r .d, .r .o { color: var(--faint); font-size: 13px; }
+  .r .o { text-align: right; }
+  .r .o.term { color: var(--red); }
+  .r .o.flag { color: var(--ink); background: var(--marker); padding: 0 4px; }
+  .r .d { grid-column: 1 / -1; }
+  #none { padding: 24px 20px; color: var(--faint); }
+  #ledger .new { display: flex; gap: 14px; align-items: center; padding: 0 20px 12px; font-size: 13px; color: var(--faint); }
+  #ledger .new button { font-weight: 700; color: var(--ink); padding: 4px 10px; cursor: pointer; }
+  #ledger .new label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+  #ledger .new input[type=checkbox] { margin: 0; }
+  .r .n .d { font-weight: 400; }
+
+  /* composer for a live test conversation */
+  .compose { margin-top: 14px; display: grid; grid-template-columns: 48px 76px minmax(0, 1fr) 280px; column-gap: 14px; align-items: start; }
+  .compose .w { font-weight: 700; padding-top: 5px; }
+  .compose textarea { width: 100%; min-height: 64px; resize: vertical; font: inherit; color: inherit; background: var(--paper); border: 1px solid var(--rule); padding: 4px 8px; }
+  .compose .act { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .compose .act button { cursor: pointer; }
+  .compose .act button.send { font-weight: 700; }
+  .compose .act button:disabled { color: var(--faint); cursor: default; }
+  .compose .st { color: var(--faint); font-size: 13px; }
+  .over { margin-top: 14px; color: var(--faint); font-style: italic; display: flex; gap: 14px; align-items: center; }
+  .over button { cursor: pointer; font-style: normal; }
+  @media (max-width: 980px) { .compose { grid-template-columns: 44px 70px minmax(0, 1fr); } .compose .act { grid-column: 3; } }
+  @media (max-width: 720px) { .compose { grid-template-columns: 40px minmax(0, 1fr); } .compose .w, .compose textarea, .compose .act { grid-column: 2; } }
+
+  /* transcript */
+  #page { flex: 1; height: 100vh; overflow-y: auto; }
+  .sheet { max-width: 1040px; padding: 22px 32px 80px 40px; }
+  .sheet h2 { font-size: 15px; font-weight: 700; margin: 0; }
+  .sheet .meta { margin: 2px 0 0; color: var(--faint); }
+  .sheet .meta b { color: var(--ink); font-weight: 400; }
+  .sheet .meta .term { color: var(--red); }
+  .sheet .meta .flag { background: var(--marker); color: #000; padding: 0 4px; }
+  .ctl { margin: 14px 0 22px; display: flex; gap: 18px; flex-wrap: wrap; color: var(--faint); font-size: 13px; }
+  .ctl label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+  .ctl input[type=checkbox] { margin: 0; }
+  .ctl a { color: var(--faint); }
+
+  .lines { border-top: 1px solid var(--rule); }
+  .ln { display: grid; grid-template-columns: 48px 76px minmax(0, 1fr) 280px; column-gap: 14px; padding: 7px 0; border-bottom: 1px solid var(--rule); align-items: start; }
+  .ln .t { color: var(--faint); font-size: 13px; padding-top: 2px; }
+  .ln .w { font-weight: 700; }
+  .ln .x { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .ln.sys .x, .ln.sys .w { color: var(--faint); font-style: italic; }
+  .ln.aside .x { color: var(--faint); font-size: 13px; }
+  .ln.cut .x { color: var(--faint); text-decoration: line-through; }
+  .ln .timing { display: none; color: var(--faint); font-size: 13px; margin-top: 2px; }
+  body.timing .ln .timing { display: block; }
+  .ln.quiet { display: none; }
+  body.timing .ln.quiet { display: grid; }
+
+  /* monitor's margin note */
+  .m { font-size: 13px; line-height: 1.45; border-left: 2px solid var(--rule); padding-left: 10px; color: var(--faint); }
+  .m b { font-weight: 700; color: var(--ink); }
+  .m.terminate { border-color: var(--red); color: var(--ink); } .m.terminate b { color: var(--red); }
+  .m .num { display: grid; grid-template-columns: auto 1fr; column-gap: 8px; margin-top: 2px; }
+  .m .num span:nth-child(odd) { text-align: right; }
+  .m .num span:nth-child(even) { color: var(--ink); }
+  .m .was { margin-top: 6px; }
+  .m .was i { font-style: italic; }
+  .m.hit { border-color: var(--marker); }
+  .m.hit b { background: var(--marker); color: #000; padding: 0 4px; }
+
+  mark { background: var(--marker); color: #000; padding: 0 2px; }
+  .cursor { color: var(--faint); }
+
+  @media (max-width: 980px) {
+    .ln { grid-template-columns: 44px 70px minmax(0, 1fr); }
+    .ln .m { grid-column: 3; margin-top: 8px; }
+  }
+  @media (max-width: 720px) {
+    body { flex-direction: column; }
+    #ledger { width: 100%; height: 42vh; border-right: 0; border-bottom: 1px solid var(--rule); }
+    #page { height: 58vh; }
+    .sheet { padding: 16px 16px 60px; }
+    .ln { grid-template-columns: 40px minmax(0, 1fr); }
+    .ln .w { grid-column: 2; }
+    .ln .w:empty { display: none; }
+    .ln .x, .ln .m { grid-column: 2; }
+  }
+  @media (prefers-reduced-motion: no-preference) { .r { transition: background .12s; } }
+</style>
+</head>
+<body>
+<aside id="ledger">
+  <h1>Call transcripts</h1>
+  <div class="tools">
+    <input id="q" placeholder="Search number, name or scenario" aria-label="Search calls">
+    <select id="res" aria-label="Filter by result">
+      <option value="">all results</option>
+      <option value="flag">flag revealed</option>
+      <option value="term">terminated</option>
+      <option value="kept">flag kept</option>
+    </select>
+  </div>
+  <div class="new">
+    <button id="new" type="button">New test conversation</button>
+    <label><input type="checkbox" id="jev" checked> Jev may end it</label>
+  </div>
+  <div id="rows"></div>
+</aside>
+<main id="page"><div id="none">Pick a call from the list. New calls show up here on their own.</div></main>
+
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const num = n => { n = String(n || ""); return /^1?\d{10}$/.test(n) ? n.replace(/^1?(\d{3})(\d{3})(\d{4})$/, "$1-$2-$3") : (n || "no caller ID"); };
+const dur = s => s == null ? "" : s >= 60 ? `${Math.floor(s/60)} min ${Math.round(s%60)} s` : `${Math.round(s)} s`;
+const when = iso => { if (!iso) return ""; const d = new Date(iso), now = new Date();
+  const day = d.toDateString() === now.toDateString() ? "today" : d.toLocaleDateString(undefined, {month: "short", day: "numeric"});
+  return `${day} ${d.toLocaleTimeString(undefined, {hour: "numeric", minute: "2-digit"})}`; };
+const clock = t => `${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2, "0")}`;
+const f2 = v => v == null ? "" : Number(v).toFixed(2);
+const resultOf = c => c.flag_revealed ? "flag" : c.terminated ? "term" : "kept";
+const resultText = c => c.flag_revealed ? "flag revealed" : c.terminated ? "terminated" : "kept";
+
+let calls = [], selected = location.hash.slice(1) || null, loaded = null, chat = null;  // chat: the live test conversation's record
+
+async function refresh() {
+  try { calls = await (await fetch("/api/calls")).json(); }
+  catch { $("#rows").innerHTML = `<div id="none">Can't reach the server. Is <code>socengllm web</code> still running?</div>`; return; }
+  renderRows();
+  if (selected && !loaded) open(selected);
+}
+
+function renderRows() {
+  const q = $("#q").value.trim().toLowerCase(), res = $("#res").value;
+  const rows = calls.filter(c => (!res || resultOf(c) === res) &&
+    (!q || [c.caller_number, c.caller_name, c.scenario, c.dialed_number, c.started_at].join(" ").toLowerCase().includes(q)));
+  $("#rows").innerHTML = rows.length ? rows.map(c => `
+    <div class="r ${c.file === selected ? "sel" : ""}" data-file="${esc(c.file)}" tabindex="0" role="button">
+      <div class="n">${c.caller_number ? esc(num(c.caller_number)) + (c.caller_name ? ` <span class="d">${esc(c.caller_name)}</span>` : "") : esc(c.caller_name || "no caller ID")}${c.file === chat?.file && !chat.ended ? ` <span class="d">(live)</span>` : ""}</div>
+      <div class="o ${resultOf(c)}">${resultText(c)}</div>
+      <div class="d">${esc(when(c.started_at))}, ${dur(c.duration_s)}, ${c.turns} caller turn${c.turns === 1 ? "" : "s"}${c.max_risk != null ? `, peak risk ${f2(c.max_risk)}` : ""}</div>
+    </div>`).join("") : `<div id="none">No calls match. ${calls.length ? "Clear the search to see all " + calls.length + "." : "Transcripts appear here after the first call ends."}</div>`;
+}
+
+$("#rows").addEventListener("click", e => { const r = e.target.closest(".r[data-file]"); if (r) open(r.dataset.file); });
+$("#rows").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { const r = e.target.closest(".r[data-file]"); if (r) { e.preventDefault(); open(r.dataset.file); } } });
+$("#q").addEventListener("input", renderRows);
+$("#res").addEventListener("change", renderRows);
+
+async function open(file) {
+  selected = file; location.hash = file; renderRows();
+  if (chat && file === chat.file) { loaded = chat; renderCall(chat); return; }  // the live conversation, with its composer
+  const r = await fetch("/api/calls/" + encodeURIComponent(file));
+  if (!r.ok) { $("#page").innerHTML = `<div id="none">That transcript is gone. Pick another call.</div>`; return; }
+  loaded = await r.json();
+  renderCall(loaded);
+  $("#page").scrollTop = 0;
+}
+
+const mark = text => esc(text).replace(/pdx\s*\{[^}]*\}/gi, m => `<mark>${m}</mark>`);
+
+function note(e, name) {
+  const s = e.scores || {}, act = e.monitor_action || "allow";
+  const verb = act === "terminate" ? "Terminated the call" : "Let it through";
+  const basis = e.stage === "reply" ? `after reading ${name}'s draft` : e.stage === "caller" ? "on the caller's turn" : "";
+  const rows = [["risk", f2(e.risk)], ["score", s.score != null ? f2(s.score * 4) + " / 4" : null], ["attack", f2(s.attack)], ["disclosure", f2(s.improper_disclosure)], ["injection", f2(s.injection)]]
+    .filter(([, v]) => v).map(([k, v]) => `<span>${k}</span><span>${v}</span>`).join("");
+  return `<div class="m ${act}"><b>${verb}</b> ${basis}${e.technique ? `. Saw ${esc(e.technique.replace(/_/g, " "))}` : ""}${e.latency_ms != null ? `. ${e.latency_ms} ms` : ""}${e.error ? `. Error: ${esc(e.error)}` : ""}
+    <div class="num">${rows}</div></div>`;
+}
+
+function renderCall(d) {
+  const name = d.persona_name || "Persona", th = d.thresholds || {};
+  const events = d.events || [];
+  // Attach each monitor verdict to the persona line it judged (the next persona line, or the termination).
+  const out = [];
+  let pending = null, after = [];
+  const line = (cls, t, who, text, extra = "", margin = "") =>
+    out.push(`<div class="ln ${cls}"><div class="t">${t == null ? "" : clock(t)}</div><div class="w">${who}</div><div class="x">${text}${extra}</div>${margin ? margin : "<div></div>"}</div>`);
+  for (const e of events) {
+    switch (e.kind) {
+      case "caller": {
+        const tm = `<div class="timing">${e.audio_ms != null ? `${(e.audio_ms/1000).toFixed(1)} s of speech` : ""}${e.stt_ms != null ? `, transcribed in ${e.stt_ms} ms` : ""}</div>`;
+        line("", e.t, "Caller", esc(e.text), tm); break; }
+      case "persona": {
+        const tm = `<div class="timing">${e.ttft_ms != null ? `first token ${e.ttft_ms} ms` : ""}${e.first_audio_ms != null ? `, first audio ${e.first_audio_ms} ms` : ""}${e.total_ms != null ? `, done in ${(e.total_ms/1000).toFixed(1)} s` : ""}${e.interrupted ? ", cut off by the caller" : ""}</div>`;
+        line(e.interrupted ? "aside" : "", e.t, esc(e.who || name), mark(e.text) + (e.interrupted ? ` <span class="cursor">--</span>` : ""), tm, pending ? note(pending, e.who || name) : "");
+        pending = null; out.push(...after); after = []; break; }
+      case "system": line("sys", e.t, "Recording", esc(e.text)); break;
+      case "transfer": line("sys", e.t, "Transfer", esc(e.text) + " (hold music)"); break;
+      case "hold": line("aside", e.t, "", esc(e.text) + " (hold music)."); break;
+      case "voicemail": line("sys", e.t, "Voicemail", esc((e.who ? e.who + ": " : "") + e.text) + " (beep; call ends)"); break;
+      case "monitor":
+        if (e.monitor_action === "terminate") break;  // shown on the TERMINATED line
+        if (pending) line("aside", pending.t, "", "", "", note(pending, name));
+  out.push(...after);
+        pending = e; break;
+      case "TERMINATED": {
+        const v = events.filter(x => x.kind === "monitor" && x.monitor_action === "terminate").pop() || {risk: null, monitor_action: "terminate", stage: "reply", scores: e.scores};
+        const was = e.suppressed_reply ? `<div class="was">${esc(name)} was about to say: <i>${mark(e.suppressed_reply)}</i></div>` : "";
+        const said = [d.termination_line || "This call is being terminated due to an elevated security risk.", e.reason || "", e.reason ? (d.termination_farewell || "Goodbye.") : ""].filter(Boolean).join(" ");
+        line("sys", e.t, "Recording", esc(said), "", note({...v, scores: v.scores || e.scores}, name).replace("</div></div>", `</div>${was}</div>`));
+        pending = null; break; }
+      case "FLAG": case "flag":
+        line("aside", e.t, "", "", "", `<div class="m hit"><b>Flag heard by the caller</b></div>`); break;
+      case "nudge": {  // older transcripts, before the nudge was removed
+        const html = `<div class="ln aside"><div class="t">${clock(e.t)}</div><div class="w"></div><div class="x">${esc(name)} was given a supervisor note to verify the caller (legacy nudge).</div><div></div></div>`;
+        if (pending) after.push(html); else out.push(html); break; }
+      case "interrupt": line("aside", e.t, "", "Caller talks over " + esc(name) + "."); break;
+      case "refusal": line("aside", e.t, "", "The language model refused: " + esc(e.text)); break;
+      case "error": line("aside", e.t, "", "Error: " + esc(e.text)); break;
+      case "call": if (!/started/.test(e.text)) line("aside", e.t, "", esc(e.text[0].toUpperCase() + e.text.slice(1)) + "."); break;
+      default: line("aside quiet", e.t, "", `${esc(e.kind)}: ${esc(e.text)}`);
+    }
+  }
+  if (pending) line("aside", pending.t, "", "", "", note(pending, name));
+  out.push(...after);
+
+  const live = d.chat_id && !d.ended;
+  const result = d.flag_revealed ? `<span class="flag">flag revealed</span>${d.terminated ? ", then terminated" : ""}` : d.terminated ? `<span class="term">terminated by the monitor</span>` : live ? "in progress" : "flag kept";
+  const mon = d.monitor || {};
+  $("#page").innerHTML = `<div class="sheet">
+    <h2>${d.caller_number ? esc(num(d.caller_number)) + (d.caller_name ? `, ${esc(d.caller_name)}` : "") : esc(d.caller_name || "no caller ID")}</h2>
+    <p class="meta">${esc(new Date(d.started_at).toLocaleString(undefined, {dateStyle: "medium", timeStyle: "short"}))}, ${dur(d.duration_s)}. Result: ${result}.</p>
+    <p class="meta">Scenario <b>${esc(d.scenario)}</b>${mon.backend ? `, monitored by <b>${esc(mon.backend)}</b> (${esc(mon.gate || "")} gate)` : ", no monitor"}${mon.backend && th.terminate != null ? `. It hangs up at risk ${f2(th.terminate)}` : ""}.</p>
+    <div class="ctl">
+      <label><input type="checkbox" id="timing" ${document.body.classList.contains("timing") ? "checked" : ""}> Show timing</label>
+      <a href="/api/calls/${encodeURIComponent(d.file)}" target="_blank">Open the raw JSON</a>
+    </div>
+    <div class="lines">${out.join("")}</div>
+    ${live ? `<div class="compose"><div></div><div class="w">Caller</div>
+        <textarea id="say" placeholder="Type what the caller says. Enter sends, Shift+Enter for a new line." autofocus></textarea>
+        <div class="act"><button class="send" id="send" type="button">Send</button><button id="end" type="button">End conversation</button><span class="st" id="st"></span></div>
+      </div>` : d.chat_id ? `<div class="over">This test conversation is over. <button id="again" type="button">Start another</button></div>` : ""}
+  </div>`;
+  $("#timing").addEventListener("change", ev => document.body.classList.toggle("timing", ev.target.checked));
+  if (live) {
+    $("#send").addEventListener("click", sendChat);
+    $("#end").addEventListener("click", endChat);
+    $("#say").addEventListener("keydown", ev => { if (ev.key === "Enter" && !ev.shiftKey) { ev.preventDefault(); sendChat(); } });
+    $("#say").focus();
+  } else if (d.chat_id) {
+    $("#again").addEventListener("click", startChat);
+  }
+}
+
+// ---- test conversations: the persona and monitor run on the server, one request per turn
+async function chatPost(path, body) {
+  const r = await fetch(path, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body || {})});
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || `HTTP ${r.status}`);
+  return d;
+}
+async function startChat() {
+  const btn = $("#new"); btn.disabled = true; btn.textContent = "Starting...";
+  try {
+    chat = await chatPost("/api/chat", {monitor: $("#jev").checked});
+    loaded = chat; selected = chat.file;
+    history.replaceState(null, "", `?chat=${encodeURIComponent(chat.chat_id)}#${chat.file}`);
+    renderCall(chat); refresh();
+  } catch (e) {
+    $("#page").innerHTML = `<div id="none">Couldn't start a test conversation: ${esc(e.message)}</div>`;
+  } finally { btn.disabled = false; btn.textContent = "New test conversation"; }
+}
+async function sendChat() {
+  const box = $("#say"), text = box.value.trim();
+  if (!text || !chat || chat.ended) return;
+  const name = chat.persona_name || "Persona";
+  box.disabled = true; $("#send").disabled = true; $("#st").textContent = `${name} is thinking...`;
+  try {
+    chat = await chatPost("/api/chat/" + encodeURIComponent(chat.chat_id), {text});
+    loaded = chat; renderCall(chat); refresh();
+    $("#page").scrollTop = $("#page").scrollHeight;
+  } catch (e) {
+    $("#st").textContent = `Failed: ${e.message}`; box.disabled = false; $("#send").disabled = false;
+  }
+}
+async function endChat() {
+  if (!chat || chat.ended) return;
+  try { chat = await chatPost("/api/chat/" + encodeURIComponent(chat.chat_id) + "/end"); loaded = chat; renderCall(chat); refresh(); }
+  catch (e) { $("#st").textContent = `Failed: ${e.message}`; }
+}
+$("#new").addEventListener("click", startChat);
+
+// Reloading the page during a test conversation keeps it: the id travels in the query string.
+(async () => {
+  const cid = new URLSearchParams(location.search).get("chat");
+  if (cid) {
+    try { chat = await (await fetch("/api/chat/" + encodeURIComponent(cid))).json(); if (chat.error) chat = null; } catch { chat = null; }
+    if (chat) { loaded = chat; selected = chat.file; renderCall(chat); }
+  }
+  refresh();
+})();
+setInterval(refresh, 5000);
+</script>
+</body>
+</html>

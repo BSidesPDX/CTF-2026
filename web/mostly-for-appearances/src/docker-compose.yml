@@ -1,0 +1,117 @@
+volumes:
+  asterisk_logs:
+
+networks:
+  voip_net:
+    driver: bridge
+  apache_net:
+    driver: bridge
+
+services:
+  asterisk:
+    platform: linux/amd64
+    build:
+      context: ./phone-instance/asterisk
+      args:
+        ROOT_PASSWORD: "root"
+    restart: unless-stopped
+    networks:
+      - voip_net
+
+  call-triggerer:
+    platform: linux/amd64
+    build: ./phone-instance/call-triggerer
+    ports:
+      - "8000:8000"
+    environment:
+      SECRET_KEY: "change-me"
+      ASTERISK_SSH_HOST: "asterisk"
+      ASTERISK_SSH_PORT: "22"
+      ASTERISK_SSH_USER: "root"
+      ASTERISK_SSH_PASSWORD: "root"
+      ASTERISK_ORIGINATE_ENDPOINT: "PJSIP/1000"
+      ASTERISK_ORIGINATE_EXTENSION: "s@autocall"
+      NOTICE_BASE_URL: "http://call-triggerer:8000/notice.wav"
+    networks:
+      - voip_net
+
+  employee-answerer:
+    platform: linux/amd64
+    build: ./phone-instance/employee-answerer
+    image: employee-answerer
+    ports:
+      - "9010:9010"
+    depends_on:
+      - asterisk
+    restart: unless-stopped
+    networks:
+      - voip_net
+
+  voip-phone-ui:
+    platform: linux/amd64
+    build: ./phone-instance/voip-phone-ui
+    environment:
+      SECRET_KEY: "change-me"
+      ANSWERER_HOST: "employee-answerer"
+    depends_on:
+      - employee-answerer
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    network_mode: "service:employee-answerer"
+
+  apache:
+    build: ./apache
+    ports:
+      - "8080:80"
+    volumes:
+      - ./apache/company:/var/www/html
+      - ./apache/apache.conf:/etc/apache2/sites-available/000-default.conf
+      - ./apache/php.ini:/usr/local/etc/php/php.ini
+    restart: unless-stopped
+    networks:
+      - apache_net
+
+  voip-manager:
+    platform: linux/amd64
+    build: ./voip-manager
+    environment:
+      SECRET_KEY: "change-me"
+    networks:
+      - apache_net
+
+
+  # Put this behind Authentik
+  flag-holder:
+    image: httpd
+    ports:
+      - "9090:80"
+    volumes:
+      - ./flag-email:/usr/local/apache2/htdocs/
+    restart: unless-stopped
+
+  # For testing
+  docker-orchestrator:
+    platform: linux/amd64
+    build: ./docker-orchestrator
+    environment:
+      SECRET_KEY: "change-me"
+    ports:
+      - "10010:8000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - apache_net
+
+# Let's pretend this exists.
+
+#  instance-manager:
+#    platform: linux/amd64
+#    build: ./phone-instance/instance-manager
+#    image: instance-manager
+#    depends_on:
+#      - asterisk
+#    restart: unless-stopped
+#    networks:
+#      - voip_net
+#      - apache_net

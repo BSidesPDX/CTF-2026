@@ -1,0 +1,10 @@
+[project]
+name = "broken-toe"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]>=0.136.1",
+    "pyjwt>=2.12.1",
+]

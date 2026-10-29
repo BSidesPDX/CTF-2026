@@ -1,0 +1,11 @@
+[project]
+name = "instance-manager"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "apscheduler>=3.11.2",
+    "flask",
+    "gunicorn>=26.0.0",
+    "kr8s",
+    "pyyaml",
+]

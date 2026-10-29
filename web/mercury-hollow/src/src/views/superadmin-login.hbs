@@ -1,0 +1,144 @@
+{{> head pageTitle=title customStyles="
+        .privileged-shell {
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) minmax(350px, 0.95fr);
+            padding: 0;
+            overflow: hidden;
+            border-color: #bd8b86;
+        }
+        .control-context {
+            position: relative;
+            overflow: hidden;
+            padding: 2.5rem;
+            background: linear-gradient(145deg, #241417 0%, #4c2025 100%);
+            color: #eadcdd;
+        }
+        .control-context::after {
+            content: '';
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            right: -105px;
+            top: -105px;
+            border: 32px solid rgba(255, 255, 255, 0.04);
+            transform: rotate(45deg);
+        }
+        .control-context .kicker { color: #e9a49d; }
+        .control-context h1 { color: #fff; font-size: 1.9rem; max-width: 14ch; }
+        .control-context > p { color: #cdb8ba; max-width: 45ch; }
+        .break-glass {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin: 0.9rem 0 1.5rem;
+            border: 1px solid rgba(233, 164, 157, 0.4);
+            border-radius: 999px;
+            padding: 0.32rem 0.72rem;
+            color: #f2b6b0;
+            font-size: 0.66rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+        .break-glass::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ef6b5e;
+            box-shadow: 0 0 0 4px rgba(239, 107, 94, 0.14);
+        }
+        .control-records { border-top: 1px solid rgba(255, 255, 255, 0.12); }
+        .control-record {
+            display: grid;
+            grid-template-columns: 0.8fr 1.2fr;
+            gap: 1rem;
+            padding: 0.72rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            font-size: 0.79rem;
+        }
+        .control-record span { color: #a88f92; }
+        .control-record code { padding: 0; border: 0; background: none; color: #f1e8e9; text-align: right; }
+        .privileged-form { padding: 2.5rem; background: var(--card); }
+        .privileged-form h2 { margin-bottom: 0.3rem; font-size: 1.35rem; }
+        .privileged-form .form-lead { margin-bottom: 1.35rem; color: var(--muted); font-size: 0.87rem; }
+        .session-target {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+            padding: 0.65rem 0;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            color: var(--muted);
+            font-size: 0.75rem;
+        }
+        .session-target code { padding: 0; border: 0; background: none; color: #8f2e28; }
+        .privileged-form button { width: 100%; background: #96382f; }
+        .privileged-form button:hover { background: #742720; }
+        .privileged-note { margin-top: 1.1rem; color: var(--muted); font-size: 0.75rem; line-height: 1.5; }
+        @media (max-width: 760px) {
+            .privileged-shell { grid-template-columns: 1fr; }
+            .control-context, .privileged-form { padding: 1.65rem; }
+            .control-context h1 { max-width: none; }
+        }
+"}}
+<body>
+    {{> company-header subtitle="Emergency Operations Control Plane"}}
+    <main class="page page-center" style="max-width: 980px;">
+        <div class="card privileged-shell">
+            <section class="control-context">
+                <span class="kicker">Privileged Operations</span>
+                <h1>Emergency Control Plane</h1>
+                <p>Break-glass access for active containment, document control, and incident-command systems.</p>
+                <div class="break-glass">Emergency Authority Required</div>
+
+                <div class="control-records">
+                    <div class="control-record">
+                        <span>Control node</span>
+                        <code>BR-EC-01</code>
+                    </div>
+                    <div class="control-record">
+                        <span>Facility</span>
+                        <code>{{facilityName}}</code>
+                    </div>
+                    <div class="control-record">
+                        <span>Incident</span>
+                        <code>LINKED / LEVEL-0</code>
+                    </div>
+                    <div class="control-record">
+                        <span>Authority tier</span>
+                        <code>LEVEL-0</code>
+                    </div>
+                </div>
+            </section>
+
+            <section class="privileged-form">
+                <span class="kicker">Identity Services</span>
+                <h2>Establish Privileged Session</h2>
+                <p class="form-lead">Authenticate with the emergency authority principal retained in the JANUS migration record.</p>
+
+                {{> alert-message}}
+
+                <div class="session-target">
+                    <span>Session target</span>
+                    <code>BR-EC-01 / LEVEL-0</code>
+                </div>
+
+                <form method="POST">
+                    {{> form-group fieldId="username" fieldName="username" labelText="Authority Principal" inputType="text" required=true}}
+                    {{> form-group fieldId="password" fieldName="password" labelText="Authority Phrase" inputType="password" required=true}}
+                    <button type="submit">Establish Session</button>
+                </form>
+
+                <p class="privileged-note">All privileged activity is retained under emergency-access policy EMC-IAM-0. Session establishment alerts Incident Command and Document Control.</p>
+            </section>
+        </div>
+
+        <div class="links">
+            <a href="/archive">Return To Records Vault</a>
+        </div>
+    </main>
+    {{> footer}}
+</body>
+</html>

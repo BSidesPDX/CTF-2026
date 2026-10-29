@@ -1,0 +1,52 @@
+name: mostly-for-appearances
+author: WholeWheatBagels, Alex
+description: |
+  BSidesCTF has been doing business with [Tangerine Printing](https://tangerineprinting.biz) for years, but we suspect they're overcharging us. Can you investigate?
+
+challenge_id: d714d7
+
+flag:
+  text: pdx{fr0nt-r0w-53at-t0-53cur1ty-th3atr3}
+
+pods:
+  # All of the challenge pods are deployed manually since they all need
+  # something different from the stock one-container-per-pod deployment and an
+  # externally-managed domain for ingress. These pod entries are only here to
+  # build the images for the custom deployments.
+  - name: apache
+    build: ./apache
+    replicas: 0
+    ports: []
+  - name: voip-manager
+    build: ./voip-manager
+    replicas: 0
+    ports: []
+
+  - name: instance-manager
+    build: ./instance-manager
+    replicas: 0
+    ports: []
+
+  # Phone instance pod containers
+  # no deployments, deployed on-demand
+  - name: phone-asterisk
+    build: ./phone-instance/asterisk
+    replicas: 0
+    ports: []
+  - name: phone-call-triggerer
+    build: ./phone-instance/call-triggerer
+    replicas: 0
+    ports: []
+  - name: phone-employee-answerer
+    build: ./phone-instance/employee-answerer
+    replicas: 0
+    ports: []
+  - name: phone-ui
+    build: ./phone-instance/voip-phone-ui
+    replicas: 0
+    ports: []
+
+  - name: flag-email
+    build: ./flag-email
+    replicas: 0
+    ports: []

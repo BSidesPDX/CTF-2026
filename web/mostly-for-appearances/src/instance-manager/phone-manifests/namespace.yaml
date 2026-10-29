@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: phone-{{ ext }}
+  labels:
+    {{ managed_anno }}: {{ managed_by }}
+    ext: "{{ ext }}"
+  annotations:
+    instance-manager/reserved-at: "{{ reserved }}"
+    instance-manager/expires-at: "{{ expires }}"
+    instance-manager/deployed: "false"

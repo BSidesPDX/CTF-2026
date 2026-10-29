@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outlook</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ffffff;
+            overflow: hidden;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            height: 48px;
+            background-color: #0078d4;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            color: white;
+            gap: 12px;
+        }
+
+        .top-bar .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .top-bar .logo img {
+            width: 25px;
+            height: 25px;
+        }
+
+        .top-bar .search-box {
+            flex: 1;
+            max-width: 500px;
+            height: 32px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            gap: 8px;
+        }
+
+        .top-bar .search-box input {
+            border: none;
+            background: transparent;
+            flex: 1;
+            outline: none;
+            color: #323130;
+            font-size: 14px;
+        }
+
+        .top-bar .user-profile {
+            margin-left: auto;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #a4373a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 48px);
+        }
+
+        /* Left Sidebar */
+        .left-sidebar {
+            width: 320px;
+            border-right: 1px solid #edebe9;
+            display: flex;
+            flex-direction: column;
+            background-color: #faf9f8;
+        }
+
+        .folder-list {
+            padding: 8px 0;
+            background-color: #ffffff;
+            border-bottom: 1px solid #edebe9;
+        }
+
+        .folder-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: #323130;
+        }
+
+        .folder-item:hover {
+            background-color: #f3f2f1;
+        }
+
+        .folder-item.active {
+            background-color: #edebe9;
+            font-weight: 600;
+        }
+
+        .folder-item i {
+            width: 16px;
+            text-align: center;
+        }
+
+        /* Message List */
+        .message-list-header {
+            padding: 16px;
+            border-bottom: 1px solid #edebe9;
+            background-color: #ffffff;
+        }
+
+        .message-list-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #323130;
+            margin-bottom: 12px;
+        }
+
+        .message-list-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .filter-button {
+            padding: 6px 12px;
+            border: 1px solid #8a8886;
+            background-color: #ffffff;
+            border-radius: 2px;
+            font-size: 14px;
+            cursor: pointer;
+            color: #323130;
+        }
+
+        .filter-button:hover {
+            background-color: #f3f2f1;
+        }
+
+        .message-list {
+            flex: 1;
+            overflow-y: auto;
+            background-color: #ffffff;
+        }
+
+        .message-item {
+            padding: 16px;
+            border-bottom: 1px solid #edebe9;
+            cursor: pointer;
+            display: flex;
+            gap: 12px;
+        }
+
+        .message-item:hover {
+            background-color: #f3f2f1;
+        }
+
+        .message-item.active {
+            background-color: #e1dfdd;
+        }
+
+        .message-item.unread {
+            background-color: #f3f9fd;
+        }
+
+        .message-item.unread:hover {
+            background-color: #e8f4fc;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #8764b8;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .message-sender {
+            font-weight: 600;
+            font-size: 14px;
+            color: #323130;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #605e5c;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        .message-subject {
+            font-size: 14px;
+            color: #323130;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .message-preview {
+            font-size: 13px;
+            color: #605e5c;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .message-item.unread .message-sender,
+        .message-item.unread .message-subject {
+            font-weight: 700;
+        }
+
+        /* Reading Pane */
+        .reading-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+        }
+
+        .reading-pane-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid #edebe9;
+        }
+
+        .reading-pane-subject {
+            font-size: 24px;
+            font-weight: 600;
+            color: #323130;
+            margin-bottom: 16px;
+        }
+
+        .reading-pane-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .reading-pane-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #8764b8;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .reading-pane-sender-info {
+            flex: 1;
+        }
+
+        .reading-pane-sender {
+            font-size: 14px;
+            font-weight: 600;
+            color: #323130;
+        }
+
+        .reading-pane-to {
+            font-size: 13px;
+            color: #605e5c;
+            margin-top: 2px;
+        }
+
+        .reading-pane-date {
+            font-size: 13px;
+            color: #605e5c;
+        }
+
+        .reading-pane-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px;
+            line-height: 1.6;
+            color: #323130;
+            font-size: 14px;
+        }
+
+        .reading-pane-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #8a8886;
+            font-size: 16px;
+        }
+
+        .flag-email {
+            background-color: #fff4ce;
+            border: 2px solid #ffb900;
+            border-radius: 4px;
+            padding: 16px;
+            margin: 16px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="logo">
+            <img src="images/email-logo.svg" alt="logo">
+            <span>Tangerine Internal Mail</span>
+        </div>
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass" style="color: #605e5c;"></i>
+            <input type="text" placeholder="Search">
+        </div>
+        <div class="user-profile">AG</div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar -->
+        <div class="left-sidebar">
+            <div class="folder-list">
+                <div class="folder-item active">
+                    <i class="fa-solid fa-inbox" style="color: #0078d4;"></i>
+                    <span>Inbox</span>
+                </div>
+            </div>
+
+            <div class="message-list-header">
+                <h2>Inbox</h2>
+            </div>
+
+            <div class="message-list" id="messageList">
+                <div class="message-item unread" data-message="passwords">
+                    <div class="message-avatar" style="background-color: #498205;">TB</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <div class="message-sender">Theresa Barnes</div>
+                            <div class="message-time">9:24 AM</div>
+                        </div>
+                        <div class="message-subject">Have mercy</div>
+                        <div class="message-preview">Alice, Please stop reusing passwords!</div>
+                    </div>
+                </div>
+
+                <div class="message-item" data-message="order">
+                    <div class="message-avatar" style="background-color: #ca5010;">DJ</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <div class="message-sender">Dylan Jones</div>
+                            <div class="message-time">Last week</div>
+                        </div>
+                        <div class="message-subject">Juicy BSidesCTF Order 💸🥵</div>
+                        <div class="message-preview">Hey Alice, those BSidesCTF guys need 3000 posters in two weeks. </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reading Pane -->
+        <div class="reading-pane">
+            <div class="reading-pane-empty" id="emptyState">
+                Select an item to read
+            </div>
+            <div id="messageContent" style="display: none; flex-direction: column; flex: 1;">
+                <div class="reading-pane-header">
+                    <div class="reading-pane-subject" id="emailSubject"></div>
+                    <div class="reading-pane-meta">
+                        <div class="reading-pane-avatar" id="emailAvatar"></div>
+                        <div class="reading-pane-sender-info">
+                            <div class="reading-pane-sender" id="emailSender"></div>
+                            <div class="reading-pane-to" id="emailTo"></div>
+                        </div>
+                        <div class="reading-pane-date" id="emailDate"></div>
+                    </div>
+                </div>
+                <div class="reading-pane-body" id="emailBody"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const emails = {
+            passwords: {
+                subject: 'Have mercy',
+                sender: 'Theresa Barnes',
+                senderEmail: 'theresa@tangerineprinting.biz',
+                to: 'alice@tangerineprinting.biz',
+                date: 'Mon 5/8/2026 9:24 AM',
+                avatar: 'TB',
+                avatarColor: '#498205',
+                body: `
+                    <p>Alice,</p>
+                    <br>
+                    <p>Please stop reusing passwords! If I get another breach notification, I'm gonna lose it ;(</p>
+                    <br>
+                    <p>Sincerely yours,<br>
+                    Theresa Barnes<br>
+                    Tangerine Printing</p>
+                `
+            },
+            order: {
+                subject: 'Juicy BSidesCTF Order 💸🥵',
+                sender: 'Dylan Jones',
+                senderEmail: 'dylan@tangerineprinting.biz',
+                to: 'alice@tangerineprinting.biz',
+                date: 'Sun 5/1/2026 3:15 PM',
+                avatar: 'DJ',
+                avatarColor: '#ca5010',
+                body: `
+                    <p>Hey Alice, those BSidesCTF guys need 3000 posters in under two weeks.</p>
+                    <br>
+                    <p>You know what that means 💸🥵... When you get back to them with the quote, make sure to add a couple zeros on the end for a "rushed job".</p>
+                    <br>
+                    <p>Oh, almost forgot. Include pdx{fr0nt-r0w-53at-t0-53cur1ty-th3atr3} somewhere, special instructions.</p>
+                    <br>
+                    <p>Dylan Jones<br>
+                    Manager<br>
+                    Tangerine Printing</p>
+                `
+            }
+        };
+
+        document.getElementById('messageList').addEventListener('click', (e) => {
+            const messageItem = e.target.closest('.message-item');
+            if (!messageItem) return;
+
+            const messageId = messageItem.dataset.message;
+            if (!emails[messageId]) return;
+
+            // Update active state
+            document.querySelectorAll('.message-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            messageItem.classList.add('active');
+            messageItem.classList.remove('unread');
+
+            // Show message content
+            const email = emails[messageId];
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('messageContent').style.display = 'flex';
+
+            document.getElementById('emailSubject').textContent = email.subject;
+            document.getElementById('emailSender').textContent = email.sender;
+            document.getElementById('emailTo').innerHTML = `To: <strong>Alice Guerrero</strong> &lt;${email.to}&gt;`;
+            document.getElementById('emailDate').textContent = email.date;
+            document.getElementById('emailAvatar').textContent = email.avatar;
+            document.getElementById('emailAvatar').style.backgroundColor = email.avatarColor;
+            document.getElementById('emailBody').innerHTML = email.body;
+        });
+    </script>
+</body>
+</html>

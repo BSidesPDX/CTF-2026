@@ -1,0 +1,53 @@
+services:
+  app:
+    build: .
+    init: true
+    restart: unless-stopped
+    ports:
+      - '${HOST_PORT:-3000}:3000'
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      APP_DB_HOST: ${APP_DB_HOST}
+      APP_DB_PORT: ${APP_DB_PORT}
+      APP_USER: ${APP_USER} # <-- app uses least-privilege role
+      APP_USER_PASS: ${APP_USER_PASS}
+      APP_DB_NAME: ${APP_DB_NAME}
+      APP_SCHEMA: ${APP_SCHEMA}
+      JWT_SECRET: ${JWT_SECRET}
+      SESSION_SECRET: ${SESSION_SECRET}
+      SESSION_MAX_AGE_HOURS: ${SESSION_MAX_AGE_HOURS:-72}
+      CORS_ORIGIN: ${CORS_ORIGIN:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '--spider', '-q', 'http://127.0.0.1:3000/health']
+      interval: 15s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - ./src/views:/app/src/views
+    env_file: .env
+
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    user: '0:0'
+    environment:
+      POSTGRES_DB: ${PG_DB}
+      POSTGRES_USER: ${PG_SUPERUSER}
+      POSTGRES_PASSWORD: ${PG_SUPERPASS}
+      PGDATA: /var/lib/postgresql/pgdata
+    volumes:
+      - bside2025_postgres_data:/var/lib/postgresql
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'pg_isready -U ${PG_SUPERUSER} -d ${PG_DB} -h 127.0.0.1']
+      interval: 5s
+      timeout: 3s
+      retries: 15
+    env_file: .env
+
+volumes:
+  bside2025_postgres_data:

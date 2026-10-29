@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Tic-Tac-Toe</title>
+        <link rel="stylesheet" href="/assets/style.css" type="text/css">
+        {% for script in scripts %}
+        <script nonce="{{ script.nonce }}" src="{{ script.src }}"></script>
+        {% endfor %}
+    </head>
+    <body>
+        <h1>Tic Tac Toe!</h1>
+        <div class="container">
+            {% for i in range(9) %}
+            <div class="cell" id="cell_{{ i }}"></div>
+            {% endfor %}
+        </div>
+        <form method="POST" action="/reset"><input type=submit value="reset"></form>
+    </body>
+</html>

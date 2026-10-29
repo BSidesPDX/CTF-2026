@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cisco VoIP Manager - Login</title>
+</head>
+<body bgcolor="#CCCCCC">
+    <center>
+        <table border="1" cellpadding="20" cellspacing="0" bgcolor="#FFFFFF" style="margin-top: 100px;">
+            <tr>
+                <td align="center">
+                    <img src="{{ url_for('static', filename='images/cisco.jpg') }}" alt="Cisco Systems" style="width: 200px; height: auto; margin: 10px"><br>
+                    <font size="+1" face="Arial, Helvetica, sans-serif" color="#003366">VoIP Unified Call Manager Login</font>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    {% with messages = get_flashed_messages() %}
+                      {% if messages %}
+                        {% for message in messages %}
+                          <font color="red">{{ message }}</font><br>
+                        {% endfor %}
+                      {% endif %}
+                    {% endwith %}
+                    <form method="get">
+                        <table border="0">
+                            <tr>
+                                <td><font face="Arial, Helvetica, sans-serif">Username:</font></td>
+                                <td><input type="text" name="username"></td>
+                            </tr>
+                            <tr>
+                                <td><font face="Arial, Helvetica, sans-serif">Password:</font></td>
+                                <td><input type="password" name="password"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" align="right">
+                                    <input type="submit" value="Login">
+                                </td>
+                            </tr>
+                        </table>
+                    </form>
+                </td>
+            </tr>
+        </table>
+        <br>
+        <font size="-1" face="Arial, Helvetica, sans-serif">Copyright &copy; 1999-2005 Cisco Systems, Inc. All rights reserved.</font>
+    </center>
+</body>
+</html>

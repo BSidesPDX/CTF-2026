@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+
+{% block content %}
+  <div class="section-title">Device Logs</div>
+  <div class="meta">Most recent entries shown first.</div>
+  <hr>
+  <pre style="font-size:12px; font-family:monospace; white-space:pre-wrap;">{% for entry in logs %}{{ entry }}
+{% endfor %}</pre>
+{% endblock %}

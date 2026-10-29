@@ -1,0 +1,24 @@
+<div class="container d-flex flex-column mb-4 p-2 w-100">
+    {% if emails|length > 0 %}
+        <table class="table w-100">
+            <thead>
+                <tr>
+                </tr>
+            </thead>
+            <tbody>
+                {% for email in emails %}
+                <tr>
+                    <td>
+                        <p><b>From:</b> {{email.from_addr}}</p>
+                        <p><b>Date:</b> {{email.sent_date}}</p>
+                        <p><b>Subject:</b> {{email.subject_line}}</p>
+                        <p>{{email.email_body}}</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Inbox empty.</p>
+    {% endif %}
+</div>

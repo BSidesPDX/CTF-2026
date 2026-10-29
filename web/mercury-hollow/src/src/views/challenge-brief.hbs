@@ -1,0 +1,47 @@
+{{> head pageTitle=title}}
+<body>
+    {{> company-header subtitle="Incident Challenge Brief"}}
+    <main class="page" style="max-width: 860px;">
+        <div class="page-head">
+            <span class="kicker">Authorized Exercise</span>
+            <h1>Rules & Scope</h1>
+            <p class="page-lead">Investigate only the fictional Ellingson Mineral Corporation assets supplied by this challenge.</p>
+        </div>
+
+        <div class="card callout">
+            One stage requires a live phone conversation with an in-character event operator.
+            Call only the number reconstructed from the supplied incident evidence and only
+            during the staffed windows published by the event. Do not contact unrelated
+            people, businesses, or numbers while solving the challenge.
+        </div>
+
+        <div class="card">
+            <h2>Allowed</h2>
+            <p>Inspecting supplied pages and files, viewing source and response headers,
+            decoding embedded data, and using ordinary file-analysis tools are in scope.</p>
+        </div>
+
+        <div class="card">
+            <h2>Not Allowed</h2>
+            <p>Denial of service, password spraying, automated endpoint brute forcing,
+            attacking event infrastructure, harassing the phone operator, and targeting
+            third-party services are out of scope.</p>
+        </div>
+
+        <div class="card">
+            <h2>Operational Notes</h2>
+            <p>Keep the original downloads. Submit each recovered <code>pdx{...}</code> value
+            to the event scoring platform. If a phone or artifact service is unavailable,
+            contact challenge staff rather than attempting alternate real-world targets.</p>
+            <p>The operator will not ask for your real identity, employer, event password, or
+            other private information. Caller ID and ordinary carrier call logs may still be
+            visible when placing a phone call.</p>
+        </div>
+
+        <div class="links">
+            <a href="/incident">Start Investigation</a>
+        </div>
+    </main>
+    {{> footer}}
+</body>
+</html>

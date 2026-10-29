@@ -1,0 +1,117 @@
+services:
+  traefik:
+    image: traefik:v3
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.http.tls=true"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080" # traefik api
+    volumes:
+      - ${DOCKER_SOCK}:/var/run/docker.sock:ro,z
+    restart: unless-stopped
+
+  authentik-db:
+    environment:
+      POSTGRES_DB: authentikdb
+      POSTGRES_PASSWORD: "this_is_a_bad_database_password!"
+      POSTGRES_USER: authentik
+    healthcheck:
+      interval: 5s
+      retries: 5
+      start_period: 20s
+      test:
+        - CMD-SHELL
+        - pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}
+      timeout: 5s
+    image: docker.io/library/postgres:16-alpine
+    restart: unless-stopped
+    volumes:
+      - database:/var/lib/postgresql/data
+
+  authentik-server:
+    command: server
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    image: ghcr.io/goauthentik/server:2026.2.1
+    environment: &auth_env
+      AUTHENTIK_POSTGRESQL__HOST: authentik-db
+      AUTHENTIK_POSTGRESQL__NAME: authentikdb
+      AUTHENTIK_POSTGRESQL__PASSWORD: "this_is_a_bad_database_password!"
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_SECRET_KEY: KtJ063BGJnMDsMTou1lewUo1TsaaHGDT6ehC4R1LuX7QI5D1tgvkTpL3O2tbXqkdOV86cmPwDaNMCLuf
+      AUTHENTIK_BOOTSTRAP_PASSWORD: notsecure
+      AUTHENTIK_BOOTSTRAP_TOKEN: notsecure
+    expose:
+      - 9000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.authentik.rule=Host(`auth.test.livinginanother.world`)"
+      - "traefik.http.routers.authentik.entrypoints=web"
+      - "traefik.http.routers.authentik-https.rule=Host(`auth.test.livinginanother.world`)"
+      - "traefik.http.routers.authentik-https.entrypoints=websecure"
+    restart: unless-stopped
+    shm_size: 512mb
+    volumes:
+      - ./data:/data:z
+      - ./custom-templates:/templates:z
+    healthcheck:
+      test: ["CMD", "curl", "-qSL", "http://localhost:9000/-/health/live/"]
+      interval: 5s
+      timeout: 1s
+      retries: 5
+      start_period: 30s
+
+  authentik-worker:
+    command: worker
+    image: ghcr.io/goauthentik/server:2026.2.1
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    environment: *auth_env
+    restart: unless-stopped
+    shm_size: 512mb
+    user: root
+    volumes:
+      - ${DOCKER_SOCK}:/var/run/docker.sock:z
+      - ./data:/data:z
+      - ./certs:/certs:z
+      - ./custom-templates:/templates:z
+
+  sip_api:
+    image: ghcr.io/mccutchen/go-httpbin
+    expose:
+      - 8080
+
+  # testapp:
+  #   image: ghcr.io/beryju/oidc-test-client
+  #   expose:
+  #     - 9009
+  #   restart: unless-stopped
+  #   environment:
+  #     OIDC_CLIENT_ID: v6fJYpL2Xj0uV40KfxbdPeQedRd2WbK7KPWVLSnd
+  #     OIDC_CLIENT_SECRET: aK9x87514up0MCF4fcNpHFmTwHP8C8M1POi0S3qA1Z2d9yLRDz2CqU0FlIXpudZSsBF09rY3Jp9IohacYsozY05Hm7YMw84pklu7bchULbyYT9madmfhpoAgTUpmU3sd
+  #     OIDC_PROVIDER: https://auth.test.livinginanother.world/application/o/testapp/
+  #     OIDC_ROOT_URL: https://app.test.livinginanother.world
+  #     OIDC_TLS_VERIFY: "false"
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.testapp.rule=Host(`app.test.livinginanother.world`)"
+  #     - "traefik.http.routers.testapp.entrypoints=web"
+  #     - "traefik.http.routers.testapp-https.rule=Host(`app.test.livinginanother.world`)"
+  #     - "traefik.http.routers.testapp-https.entrypoints=websecure"
+  #   depends_on:
+  #     server:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     disable: true
+volumes:
+  database:

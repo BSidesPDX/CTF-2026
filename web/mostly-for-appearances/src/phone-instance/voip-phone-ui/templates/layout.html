@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cisco IP Phone 7912 - {{ page_title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body>
+    <table class="layout" cellspacing="0" cellpadding="0">
+      <tr>
+        <td class="logo">
+          <img src="{{ url_for('static', filename='cisco.jpg') }}" alt="Cisco Systems" />
+          <div class="mark">Cisco Systems</div>
+          <div class="tagline">IP Phone Interface</div>
+        </td>
+        <td class="topbar">
+          {{ page_title }}
+          <small>Cisco IP Phone 7912</small>
+        </td>
+      </tr>
+      <tr>
+        <td class="sidebar">
+          <a href="{{ url_for('index') }}" {% if active_nav == "device" %}class="active"{% endif %}>
+            Device Information
+          </a>
+          <a href="{{ url_for('network_config') }}" {% if active_nav == "netconfig" %}class="active"{% endif %}>
+            Network Configuration
+          </a>
+          <a href="{{ url_for('network_stats') }}" {% if active_nav == "netstats" %}class="active"{% endif %}>
+            Network Statistics
+          </a>
+          <a href="{{ url_for('device_logs') }}" {% if active_nav == "logs" %}class="active"{% endif %}>
+            Device Logs
+          </a>
+          <a href="{{ url_for('packet_capture') }}" {% if active_nav == "packet" %}class="active"{% endif %}>
+            Packet Capture
+          </a>
+          <span style="color:#778899; display:block; padding:4px 10px; font-size:14px; border-bottom:1px solid #0e4d57;">
+            Change Configuration
+          </span>
+        </td>
+        <td class="content">
+          {% block content %}{% endblock %}
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

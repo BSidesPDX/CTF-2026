@@ -1,0 +1,288 @@
+{{> head pageTitle=title customStyles="
+        .case-toolbar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .case-id {
+            font-family: var(--mono);
+            color: var(--muted);
+            font-size: 0.82rem;
+            margin: 0;
+        }
+        .status-row { display: flex; gap: 0.45rem; flex-wrap: wrap; }
+        .case-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.65fr) minmax(260px, 0.85fr);
+            gap: 1.25rem;
+            align-items: start;
+        }
+        .section-label {
+            display: block;
+            color: var(--muted);
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-bottom: 0.35rem;
+        }
+        .evidence-file {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fbfaf7;
+            padding: 1rem;
+            margin: 1.1rem 0 1.25rem;
+        }
+        .file-mark {
+            width: 46px;
+            height: 54px;
+            display: grid;
+            place-items: center;
+            flex: none;
+            border: 1px solid #d5cabb;
+            border-radius: 6px;
+            background: var(--sand);
+            color: var(--copper-dark);
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            font-weight: 700;
+        }
+        .file-copy { min-width: 0; flex: 1; }
+        .file-copy strong {
+            display: block;
+            color: var(--ink);
+            font-family: var(--mono);
+            font-size: 0.94rem;
+            overflow-wrap: anywhere;
+        }
+        .file-copy span { color: var(--muted); font-size: 0.8rem; }
+        .record-list { border-top: 1px solid var(--line); }
+        .record-row {
+            display: grid;
+            grid-template-columns: minmax(130px, 0.65fr) minmax(0, 1.35fr);
+            gap: 1rem;
+            padding: 0.72rem 0;
+            border-bottom: 1px solid var(--line);
+            font-size: 0.88rem;
+        }
+        .record-key { color: var(--muted); }
+        .record-value { color: var(--ink); font-family: var(--mono); overflow-wrap: anywhere; }
+        .exception-note {
+            border-left: 3px solid #b7791f;
+            background: var(--warn-bg);
+            color: var(--warn-text);
+            padding: 0.9rem 1rem;
+            margin-top: 1.15rem;
+            font-size: 0.88rem;
+        }
+        .timeline { list-style: none; margin: 0; padding: 0; }
+        .timeline li {
+            position: relative;
+            margin-left: 0.35rem;
+            padding: 0 0 1rem 1.25rem;
+            border-left: 1px solid var(--line);
+        }
+        .timeline li:last-child { border-left-color: transparent; padding-bottom: 0; }
+        .timeline li::before {
+            content: '';
+            position: absolute;
+            width: 7px;
+            height: 7px;
+            left: -4px;
+            top: 0.42rem;
+            border-radius: 50%;
+            background: var(--copper);
+        }
+        .timeline time {
+            display: block;
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            color: var(--muted);
+        }
+        .timeline strong { display: block; color: var(--ink); font-size: 0.88rem; }
+        .timeline span { display: block; color: var(--muted); font-size: 0.8rem; }
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.65rem;
+            margin-top: 0.9rem;
+        }
+        .control-field {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 0.7rem;
+            background: #fbfaf7;
+        }
+        .control-field span { display: block; color: var(--muted); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.08em; }
+        .control-field code { display: block; border: 0; background: none; padding: 0.2rem 0 0; color: var(--ink); }
+        @media (max-width: 760px) {
+            .case-layout { grid-template-columns: 1fr; }
+            .record-row { grid-template-columns: 1fr; gap: 0.15rem; }
+            .evidence-file { align-items: flex-start; flex-wrap: wrap; }
+            .evidence-file .button { width: 100%; }
+        }
+"}}
+<body>
+    {{> company-header subtitle="Northline Remediation Workspace"}}
+    <main class="page" style="max-width: 1080px;">
+        <div class="page-head case-toolbar">
+            <div>
+                <span class="kicker">External Incident Workspace</span>
+                <h1>{{incidentName}}</h1>
+                <p class="case-id">Case {{fieldPacketCode}} · Project {{projectCode}}</p>
+            </div>
+            <div class="status-row">
+                <span class="chip chip-active">Active Hold</span>
+                <span class="chip chip-ok">Intake Verified</span>
+            </div>
+        </div>
+
+        <div class="flag">
+            <span class="flag-caption">Intake Authorization Token</span>
+            {{flag}}
+        </div>
+
+        <div class="case-layout">
+            <section>
+                <div class="card">
+                    <span class="section-label">Evidence Registry</span>
+                    <h2>Field Artifact 01</h2>
+                    <p>Original export received from the {{facilityName}} field imaging station.</p>
+
+                    <div class="evidence-file">
+                        <div class="file-mark">TIFF</div>
+                        <div class="file-copy">
+                            <strong>soil-core-survey.tiff</strong>
+                            <span>Source object · FSX-09 · Original retained</span>
+                        </div>
+                        <a class="button" href="/challenge-downloads/soil-core-survey.tiff">Download Original</a>
+                    </div>
+
+                    <div class="record-list">
+                        <div class="record-row">
+                            <span class="record-key">Custody identifier</span>
+                            <span class="record-value">NR-{{fieldPacketCode}}-E01</span>
+                        </div>
+                        <div class="record-row">
+                            <span class="record-key">Declared media</span>
+                            <span class="record-value">image/tiff</span>
+                        </div>
+                        <div class="record-row">
+                            <span class="record-key">Preview pipeline</span>
+                            <span class="record-value">LEGACY-RASTER / BYPASSED</span>
+                        </div>
+                        <div class="record-row">
+                            <span class="record-key">Ingest verification</span>
+                            <span class="record-value">EX-17 / BOUNDARY MISMATCH</span>
+                        </div>
+                        <div class="record-row">
+                            <span class="record-key">Disposition</span>
+                            <span class="record-value">PRESERVE AS RECEIVED</span>
+                        </div>
+                    </div>
+
+                    <div class="exception-note">
+                        <strong>QA exception EX-17:</strong> Automated ingest could not reconcile
+                        the scanner-reported raster boundary with the transferred object. Normalization
+                        was skipped under evidence-preservation policy.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="section-label">Chain Of Custody</span>
+                    <h2>Transfer Activity</h2>
+                    <ul class="timeline">
+                        <li>
+                            <time>03:18 PDT</time>
+                            <strong>Field export created</strong>
+                            <span>FSX-09 · Core imaging station</span>
+                        </li>
+                        <li>
+                            <time>03:22 PDT</time>
+                            <strong>Object received by Northline intake</strong>
+                            <span>Transfer checksum accepted without normalization</span>
+                        </li>
+                        <li>
+                            <time>03:24 PDT</time>
+                            <strong>Automated verification held</strong>
+                            <span>Exception EX-17 assigned for analyst review</span>
+                        </li>
+                        <li>
+                            <time>03:31 PDT</time>
+                            <strong>Contractor access authorized</strong>
+                            <span>Original object released under active custody hold</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <aside>
+                <div class="card">
+                    <span class="section-label">Case Record</span>
+                    <h2>Assignment</h2>
+                    <div class="record-list">
+                        <div class="record-row">
+                            <span class="record-key">Facility</span>
+                            <span class="record-value">{{facilityName}}</span>
+                        </div>
+                        <div class="record-row">
+                            <span class="record-key">Incident</span>
+                            <span class="record-value">{{incidentName}}</span>
+                        </div>
+                        <div class="record-row">
+                            <span class="record-key">Contractor</span>
+                            <span class="record-value">{{contractorName}}</span>
+                        </div>
+                        <div class="record-row">
+                            <span class="record-key">Project</span>
+                            <span class="record-value">{{projectCode}}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="section-label">Retention Control</span>
+                    <h2>Profile NDR-4.2</h2>
+                    <p>Field-transfer controls assigned at intake.</p>
+                    <div class="control-grid">
+                        <div class="control-field">
+                            <span>Site token</span>
+                            <code>{{facilityToken}}</code>
+                        </div>
+                        <div class="control-field">
+                            <span>Packet suffix</span>
+                            <code>{{packetSuffix}}</code>
+                        </div>
+                        <div class="control-field">
+                            <span>Key mode</span>
+                            <code>CONCAT</code>
+                        </div>
+                        <div class="control-field">
+                            <span>Transform</span>
+                            <code>LOWERCASE</code>
+                        </div>
+                        <div class="control-field">
+                            <span>Separator</span>
+                            <code>NONE</code>
+                        </div>
+                        <div class="control-field">
+                            <span>Escrow</span>
+                            <code>DETACHED</code>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <div class="links">
+            <a href="/incident">Incident Bulletin</a>
+        </div>
+    </main>
+    {{> footer}}
+</body>
+</html>

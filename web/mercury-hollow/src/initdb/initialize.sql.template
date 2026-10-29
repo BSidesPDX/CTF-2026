@@ -1,0 +1,30 @@
+\set ON_ERROR_STOP on
+\echo '🟦 Running database initialization...'
+
+-- pull Docker env vars into psql vars
+\set APP_OWNER      :APP_OWNER
+\set APP_OWNER_PASS :APP_OWNER_PASS
+\set APP_USER       :APP_USER
+\set APP_USER_PASS  :APP_USER_PASS
+\set APP_SCHEMA     :APP_SCHEMA
+\set PG_DB          :PG_DB
+
+-- 1️⃣ create app user if not exists (now the schema owner)
+SELECT format(
+               'CREATE ROLE %I LOGIN PASSWORD %L NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT;',
+               :'APP_USER', :'APP_USER_PASS'
+       )
+    WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = :'APP_USER')
+    \gexec
+
+-- 2️⃣ schema (owned by app user)
+SELECT format('CREATE SCHEMA %I AUTHORIZATION %I;', :'APP_SCHEMA', :'APP_USER')
+    WHERE NOT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = :'APP_SCHEMA')
+    \gexec
+
+-- 3️⃣ grant database connection
+SELECT format('GRANT CONNECT ON DATABASE %I TO %I;', :'PG_DB', :'APP_USER') \gexec
+
+-- 4️⃣ Let TypeORM handle table creation - no manual table creation needed
+
+\echo '✅ Database initialization complete.'

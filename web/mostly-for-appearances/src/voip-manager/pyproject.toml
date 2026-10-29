@@ -1,0 +1,12 @@
+[project]
+name = "mfa-voip-manager"
+version = "0.1.0"
+description = "Simulated VoIP Phone Management"
+requires-python = ">=3.10"
+dependencies = [
+    "flask>=3.0.0",
+    "flask-login>=0.6.3",
+    "gunicorn>=25.3.0",
+    "peewee>=3.17.0",
+    "requests>=2.33.1",
+]

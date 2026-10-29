@@ -1,0 +1,21 @@
+{{> head pageTitle="Employee Portal"}}
+<body>
+    {{> company-header subtitle="Employee Portal"}}
+    <main class="page page-narrow page-center">
+        <div class="card auth-card">
+            <span class="kicker">Employee Portal</span>
+            <h1>Sign in</h1>
+
+            {{> alert-message}}
+
+            <form method="POST" action="/login">
+                {{> form-group fieldId="teamName" fieldName="teamName" labelText="Employee ID" inputType="text" required=true}}
+                <button type="submit">Access Portal</button>
+            </form>
+        </div>
+
+        {{> navigation-links links=loginLinks}}
+    </main>
+    {{> footer}}
+</body>
+</html>

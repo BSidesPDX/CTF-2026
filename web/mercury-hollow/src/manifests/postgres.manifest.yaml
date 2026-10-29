@@ -1,0 +1,145 @@
+# Postgres for web/mercury-hollow. Applied as-is by beavercds into the
+# challenge namespace (rcds-<category>-<name>). Reuses ../initdb so the
+# cluster database is initialized the same way as docker-compose.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mercury-hollow-db-init
+  namespace: rcds-web-mercury-hollow
+data:
+  000-init-wrapper.sh: |
+    #!/usr/bin/env bash
+    set -euo pipefail
+    
+    echo "🟩 Initializing application database role and schema..."
+    
+    # Run psql with vars passed as --set
+    psql -v ON_ERROR_STOP=1 \
+      --username "$POSTGRES_USER" \
+      --dbname "$POSTGRES_DB" \
+      --set=APP_USER="$APP_USER" \
+      --set=APP_USER_PASS="$APP_USER_PASS" \
+      --set=APP_SCHEMA="$APP_SCHEMA" \
+      --set=PG_DB="$PG_DB" \
+      -f /docker-entrypoint-initdb.d/initialize.sql.template
+    
+    echo "✅ Env-driven SQL initialization complete."
+  initialize.sql.template: |
+    \set ON_ERROR_STOP on
+    \echo '🟦 Running database initialization...'
+    
+    -- pull Docker env vars into psql vars
+    \set APP_OWNER      :APP_OWNER
+    \set APP_OWNER_PASS :APP_OWNER_PASS
+    \set APP_USER       :APP_USER
+    \set APP_USER_PASS  :APP_USER_PASS
+    \set APP_SCHEMA     :APP_SCHEMA
+    \set PG_DB          :PG_DB
+    
+    -- 1️⃣ create app user if not exists (now the schema owner)
+    SELECT format(
+                   'CREATE ROLE %I LOGIN PASSWORD %L NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT;',
+                   :'APP_USER', :'APP_USER_PASS'
+           )
+        WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = :'APP_USER')
+        \gexec
+    
+    -- 2️⃣ schema (owned by app user)
+    SELECT format('CREATE SCHEMA %I AUTHORIZATION %I;', :'APP_SCHEMA', :'APP_USER')
+        WHERE NOT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = :'APP_SCHEMA')
+        \gexec
+    
+    -- 3️⃣ grant database connection
+    SELECT format('GRANT CONNECT ON DATABASE %I TO %I;', :'PG_DB', :'APP_USER') \gexec
+    
+    -- 4️⃣ Let TypeORM handle table creation - no manual table creation needed
+    
+    \echo '✅ Database initialization complete.'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mercury-hollow-db
+  namespace: rcds-web-mercury-hollow
+  labels:
+    app: mercury-hollow-db
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: mercury-hollow-db
+  template:
+    metadata:
+      labels:
+        app: mercury-hollow-db
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: postgres
+          image: postgres:18-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - { name: POSTGRES_DB, value: bsides }
+            - { name: POSTGRES_USER, value: mercury_admin }
+            - { name: POSTGRES_PASSWORD, value: 3cc2d706ed691b2cc6b11c56071745d926f9bb5f914fbdd5 }
+            - { name: PG_DB, value: bsides }
+            - { name: APP_USER, value: mercury_app }
+            - { name: APP_USER_PASS, value: 919c28e38efc073696e27fbce7d80dfbb2c9adb1f75acde2 }
+            - { name: APP_SCHEMA, value: app }
+          readinessProbe:
+            exec:
+              command: ['pg_isready', '-U', 'mercury_admin', '-d', 'bsides', '-h', '127.0.0.1']
+            periodSeconds: 5
+          resources:
+            requests: { cpu: 250m, memory: 256M }
+            limits: { cpu: "1", memory: 512M }
+          volumeMounts:
+            - { name: data, mountPath: /var/lib/postgresql }
+            - { name: init, mountPath: /docker-entrypoint-initdb.d, readOnly: true }
+      volumes:
+        # Sessions only; losing them on a DB pod restart just means players
+        # log back in with credentials they already have.
+        - name: data
+          emptyDir: {}
+        - name: init
+          configMap:
+            name: mercury-hollow-db-init
+            # 0755 (decimal; YAML 1.2 parsers don't read 0755 as octal).
+            # Executable so the postgres entrypoint runs the wrapper with bash,
+            # same as the 100755 initdb files used by docker-compose.
+            defaultMode: 493
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mercury-hollow-db
+  namespace: rcds-web-mercury-hollow
+spec:
+  type: ClusterIP
+  selector:
+    app: mercury-hollow-db
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+# Only the challenge app pods may reach the database.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mercury-hollow-db
+  namespace: rcds-web-mercury-hollow
+spec:
+  podSelector:
+    matchLabels:
+      app: mercury-hollow-db
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              rctf/part-of: web-mercury-hollow-main
+      ports:
+        - port: 5432

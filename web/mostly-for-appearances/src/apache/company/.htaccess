@@ -1,0 +1,7 @@
+RewriteEngine On
+
+# Dynamic image resizing
+# Match URLs like: images/people/alice.jpg?w=300&h=300
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{QUERY_STRING} w=([0-9]+)
+RewriteRule ^(images/.+\.(jpg|jpeg|png|gif))$ resize.php?image=$1&%{QUERY_STRING} [L]

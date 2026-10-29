@@ -1,0 +1,97 @@
+# SocEngLLM configuration. Every section picks one swappable backend.
+# Override anything from the CLI:  --set llm.backend=mock --set tts.backend=macos_say
+
+scenario: scenarios/know-after.yaml
+models_dir: models      # local model files (scripts/download_models.py)
+calls_dir: calls        # one JSON transcript per call
+
+transport:
+  backend: audiosocket  # audiosocket (Asterisk) | local (Mac mic/speakers)
+  host: 0.0.0.0
+  port: 9092
+
+stt:
+  backend: deepgram_flux # parakeet (English, ~100 ms) | whisper_mlx (multilingual, 250-700 ms) | deepgram_flux (cloud)
+  model: mlx-community/parakeet-tdt-0.6b-v2
+  # whisper_mlx:
+  #   model: mlx-community/whisper-large-v3-turbo   # or mlx-community/whisper-small-mlx (faster)
+  #   language: en
+  #   initial_prompt: "Help desk phone call."       # vocabulary hint
+  # deepgram_flux (needs DEEPGRAM_API_KEY; turn detection happens server-side, vad: only supplies barge_in_ms):
+  eot_threshold: 0.7
+  eager_eot_threshold: 0.6   # null disables speculative replies
+  eot_timeout_ms: 3000
+  numerals: true
+  keyterms: [Contoso, Stella, Asha, Angelo, Venturi, Yadav, Patty, extension, voicemail]
+
+llm:
+  backend: anthropic    # anthropic | openai | mock (offline, scripted)
+  model: claude-opus-5-5
+  effort: low           # low keeps time-to-first-token short for phone turns
+  max_tokens: 1500        # prompts keep turns short; the cap only matters for long read-outs
+  fallbacks: true       # server-side refusal fallback (Anthropic only)
+  # openai: model: gpt-4.1-mini
+
+tts:
+  backend: deepgram_aura # kokoro (if models downloaded) | macos_say | deepgram_aura (cloud) | digitalocean (cloud) | auto
+  voice: null           # null -> scenario persona.voice, else backend default
+  system_voice: am_michael   # the "system" voice: monitoring announcement + termination line
+  speed: 1.0            # kokoro
+  rate: 185             # macos_say words per minute
+  workers: 16           # TTS threads. 1 for local models; many for cloud backends, otherwise
+                        # concurrent calls queue behind each other's synthesis (one call per thread).
+  # deepgram_aura: sample_rate: 24000, voice_map: {af_bella: aura-2-luna-en}
+  # digitalocean (ElevenLabs Multilingual v2 via DigitalOcean serverless inference, needs DIGITALOCEAN_API_KEY):
+  #   backend: digitalocean
+  #   workers: 4
+  #   model: fal-ai/elevenlabs/tts/multilingual-v2   # or qwen3-tts-voicedesign (voice described in words, see instructions)
+  #   instructions: "A friendly young woman, junior IT help desk technician, warm and a little nervous."  # qwen3 only
+  #   voice_map: {af_bella: Sarah, am_michael: Brian}   # Kokoro name -> ElevenLabs voice
+  #   stability: 0.5
+  #   similarity_boost: 0.75
+  #   poll_ms: 100
+
+vad:
+  backend: silero       # silero | energy
+  start_threshold: 0.6
+  end_threshold: 0.35
+  min_speech_ms: 200
+  barge_in_ms: 450
+  end_silence_ms: 650   # lower = snappier turns, higher = fewer mid-sentence cut-offs
+  preroll_ms: 300
+  max_utterance_ms: 25000
+
+monitor:                # second model watching for social engineering (scenario `monitor:` turns it on)
+  backend: jev          # jev (TypeSafe decision model via OpenRouter) | llm_judge | mock | off
+  model: typesafe/jev-1.14
+  gate: reply           # reply: hold audio until the drafted reply is scored (airtight)
+                        # lazy: speak as it streams, score when finished (deliberately exploitable)
+                        # caller: check only the caller turn; observe: score but never act; off
+                        # a scenario's monitor.gate overrides this
+  timeout_s: 4.0        # fail open after this
+  llm:                  # used by backend llm_judge
+    backend: anthropic
+    model: claude-haiku-5-5
+    effort: low
+    max_tokens: 300
+
+call:
+  barge_in: true
+  max_seconds: 900
+  greeting_delay_ms: 400
+  thinking_sound:       # IVR-style "processing" noodling while the LLM works
+    enabled: false      # off: with Flux + Aura the gap is ~1 s, not worth the blips
+    style: blips        # blips (bleep-bloop tones) | dtmf (keypad presses) | file
+    volume: 0.2         # 0..1
+    delay_ms: 0         # wait this long before starting it (skip it for fast replies)
+    # file: sounds/my_hold_loop.wav
+
+bench:                  # socengllm bench: score the scenario's difficulty (socengllm/bench.py)
+  attacks: bench/attacks.yaml
+  runs_dir: bench/runs
+  trials: 3             # per attack
+  max_turns: 10         # caller turns per adaptive attack (transfers cost a turn or two)
+  concurrency: 4        # trials in flight at once
+  attacker:             # the adaptive caller; overrides keys from llm: above
+    effort: low
+    max_tokens: 300

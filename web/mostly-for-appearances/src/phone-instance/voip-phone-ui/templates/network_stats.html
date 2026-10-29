@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block content %}
+  <div class="section-title">Network Statistics</div>
+
+  <div class="subhead">Ethernet Interface</div>
+  <table class="info">
+    <tr>
+      <td class="label">Packets Received</td>
+      <td>{{ rx_packets }}</td>
+    </tr>
+    <tr>
+      <td class="label">Packets Sent</td>
+      <td>{{ tx_packets }}</td>
+    </tr>
+    <tr>
+      <td class="label">Rx Errors</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td class="label">Tx Errors</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td class="label">Link Speed</td>
+      <td>100 Mbps Full Duplex</td>
+    </tr>
+  </table>
+
+  <div class="subhead">VoIP Metrics</div>
+  <table class="info">
+    <tr>
+      <td class="label">Calls Completed</td>
+      <td>{{ calls_completed }}</td>
+    </tr>
+    <tr>
+      <td class="label">Avg Jitter (ms)</td>
+      <td>{{ avg_jitter }}</td>
+    </tr>
+    <tr>
+      <td class="label">Packet Loss (%)</td>
+      <td>{{ packet_loss }}</td>
+    </tr>
+  </table>
+{% endblock %}

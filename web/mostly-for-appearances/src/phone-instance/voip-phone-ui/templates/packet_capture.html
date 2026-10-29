@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+
+{% block content %}
+  <div class="section-title">Packet Capture</div>
+  <table class="info">
+    <tr>
+      <td class="label">Status</td>
+      <td>
+        {% if capture_running %}
+          <span class="status-running">Running</span>
+        {% else %}
+          <span class="status-idle">Idle</span>
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td class="label">Runtime</td>
+      <td>{{ capture_duration or "00:00" }}</td>
+    </tr>
+    <tr>
+      <td class="label">Last Capture</td>
+      <td>
+        {% if pcap_ready %}
+          {{ pcap_size }} bytes
+        {% else %}
+          none
+        {% endif %}
+      </td>
+    </tr>
+  </table>
+
+  <hr />
+
+  <div class="subhead">Actions</div>
+  <div class="actions">
+    {% if capture_running %}
+      <form method="post" action="{{ url_for('stop_capture') }}">
+        <input class="btn" type="submit" value="Stop Capture" />
+      </form>
+    {% else %}
+      <form method="post" action="{{ url_for('start_capture') }}">
+        <input class="btn" type="submit" value="Start Capture" />
+      </form>
+    {% endif %}
+
+    {% if pcap_ready %}
+      <a class="btn" href="{{ url_for('download_capture') }}">Download PCAP</a>
+    {% else %}
+      <input class="btn" type="button" value="Download PCAP" disabled />
+    {% endif %}
+  </div>
+  <div class="meta">PCAP appears only after stopping capture.</div>
+
+  {% set flashed = get_flashed_messages(with_categories=true) %}
+  {% if flashed %}
+    {% for category, message in flashed %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  {% if last_error and not flashed %}
+    <div class="flash error">{{ last_error }}</div>
+  {% endif %}
+{% endblock %}

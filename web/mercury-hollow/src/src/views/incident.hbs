@@ -1,0 +1,354 @@
+{{> head pageTitle=title customStyles="
+        .bulletin-masthead {
+            display: grid;
+            grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.65fr);
+            gap: 1.25rem;
+            align-items: stretch;
+            margin-bottom: 1.25rem;
+        }
+        .bulletin-intro {
+            position: relative;
+            overflow: hidden;
+            padding: 2.25rem;
+            border-radius: var(--radius);
+            color: #e8eef4;
+            background: linear-gradient(145deg, #0b1926 0%, #173854 100%);
+            box-shadow: var(--shadow);
+        }
+        .bulletin-intro::after {
+            content: '';
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            right: -150px;
+            bottom: -180px;
+            border: 44px solid rgba(223, 165, 97, 0.08);
+            border-radius: 50%;
+        }
+        .bulletin-intro .kicker { color: var(--gold); }
+        .bulletin-intro h1 {
+            max-width: 17ch;
+            color: #fff;
+            font-size: clamp(2rem, 4.4vw, 3.15rem);
+            line-height: 1.08;
+            letter-spacing: -0.025em;
+        }
+        .bulletin-intro .lead { max-width: 64ch; color: #b9c8d5; font-size: 1rem; }
+        .issue-line {
+            display: flex;
+            gap: 0.55rem 1.2rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+            color: #91a6b8;
+            font-family: var(--mono);
+            font-size: 0.72rem;
+        }
+        .docket-card { margin: 0; display: flex; flex-direction: column; }
+        .docket-card h2 { font-size: 1.05rem; }
+        .docket-number {
+            display: block;
+            margin: 0.35rem 0 1rem;
+            color: var(--ink);
+            font-family: var(--mono);
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        .docket-list { border-top: 1px solid var(--line); }
+        .docket-row {
+            display: grid;
+            grid-template-columns: 0.85fr 1.15fr;
+            gap: 0.75rem;
+            padding: 0.67rem 0;
+            border-bottom: 1px solid var(--line);
+            font-size: 0.78rem;
+        }
+        .docket-row span { color: var(--muted); }
+        .docket-row strong { color: var(--ink); text-align: right; }
+        .status-band {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            margin-bottom: 1.25rem;
+            padding: 0.9rem 1.1rem;
+            border: 1px solid var(--warn-line);
+            border-left: 4px solid #b7791f;
+            border-radius: 9px;
+            background: var(--warn-bg);
+            color: var(--warn-text);
+            font-size: 0.88rem;
+        }
+        .status-band strong { white-space: nowrap; }
+        .content-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.65fr);
+            gap: 1.25rem;
+            align-items: start;
+        }
+        .section-label {
+            display: block;
+            margin-bottom: 0.35rem;
+            color: var(--muted);
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+        .summary-copy p { color: var(--text); }
+        .response-table { width: 100%; border-collapse: collapse; margin-top: 0.8rem; font-size: 0.82rem; }
+        .response-table th {
+            padding: 0.55rem;
+            border-bottom: 1px solid var(--line);
+            color: var(--muted);
+            font-size: 0.65rem;
+            letter-spacing: 0.1em;
+            text-align: left;
+            text-transform: uppercase;
+        }
+        .response-table td { padding: 0.7rem 0.55rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+        .response-table td:first-child { color: var(--muted); font-family: var(--mono); white-space: nowrap; }
+        .fact-list { border-top: 1px solid var(--line); }
+        .fact-row {
+            display: grid;
+            grid-template-columns: 0.8fr 1.2fr;
+            gap: 0.75rem;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid var(--line);
+            font-size: 0.8rem;
+        }
+        .fact-row span { color: var(--muted); }
+        .fact-row strong { color: var(--ink); text-align: right; }
+        .guidance-list { list-style: none; margin: 0; padding: 0; }
+        .guidance-list li {
+            position: relative;
+            padding: 0.65rem 0 0.65rem 1.25rem;
+            border-bottom: 1px solid var(--line);
+            color: var(--text);
+            font-size: 0.82rem;
+        }
+        .guidance-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 1.05rem;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--copper);
+        }
+        .field-section { margin-top: 1.75rem; }
+        .section-heading {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.9rem;
+        }
+        .section-heading h2 { margin: 0; font-size: 1.35rem; }
+        .section-heading p { margin: 0; color: var(--muted); font-size: 0.8rem; }
+        .incident-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+        }
+        .incident-card { padding: 0; margin: 0; overflow: hidden; }
+        .incident-card img {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            border-bottom: 1px solid var(--line);
+            background: var(--sand);
+        }
+        .photo-copy { padding: 1rem; }
+        .photo-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 0.45rem;
+            color: var(--muted);
+            font-family: var(--mono);
+            font-size: 0.66rem;
+        }
+        .incident-card h3 { margin-bottom: 0.3rem; font-size: 0.95rem; }
+        .incident-card p { margin: 0; color: var(--muted); font-size: 0.8rem; }
+        .public-actions {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+            margin-top: 1.25rem;
+        }
+        .action-card { margin: 0; padding: 1.15rem; }
+        .action-card .number {
+            display: block;
+            margin-bottom: 0.45rem;
+            color: var(--copper);
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        .action-card h3 { font-size: 0.92rem; }
+        .action-card p { margin: 0; color: var(--muted); font-size: 0.8rem; }
+        .utility-panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1.25rem;
+            padding: 1rem 1.15rem;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #ebe7df;
+        }
+        .utility-panel strong { display: block; color: var(--ink); font-size: 0.85rem; }
+        .utility-panel span { display: block; color: var(--muted); font-size: 0.76rem; }
+        .utility-actions { display: flex; gap: 0.55rem; flex-wrap: wrap; }
+        .utility-actions .button { padding: 0.48rem 0.85rem; font-size: 0.78rem; }
+        @media (max-width: 860px) {
+            .bulletin-masthead, .content-layout { grid-template-columns: 1fr; }
+            .incident-grid, .public-actions { grid-template-columns: 1fr; }
+            .bulletin-intro h1 { max-width: none; }
+        }
+        @media (max-width: 560px) {
+            .bulletin-intro { padding: 1.5rem; }
+            .status-band { align-items: flex-start; flex-direction: column; }
+            .response-table th:nth-child(3), .response-table td:nth-child(3) { display: none; }
+            .utility-actions, .utility-actions .button { width: 100%; }
+        }
+"}}
+<body>
+    {{> company-header subtitle="Community & Environmental Response"}}
+    <main class="page" style="max-width: 1160px;">
+        <section class="bulletin-masthead">
+            <div class="bulletin-intro">
+                <span class="kicker">Environmental Response Office</span>
+                <h1>{{incidentName}} Response Update</h1>
+                <p class="lead">Public information regarding the active containment and remediation action at the {{facilityName}} operating site.</p>
+                <div class="issue-line">
+                    <span>PUBLIC NOTICE {{fieldPacketCode}}</span>
+                    <span>REVISION 03</span>
+                    <span>ISSUED 27 APR 2025</span>
+                </div>
+            </div>
+
+            <div class="card docket-card">
+                <span class="section-label">Public Docket</span>
+                <h2>Incident Record</h2>
+                <span class="docket-number">{{fieldPacketCode}}</span>
+                <div class="docket-list">
+                    <div class="docket-row"><span>Status</span><strong>Active Containment</strong></div>
+                    <div class="docket-row"><span>Public risk</span><strong>Controlled</strong></div>
+                    <div class="docket-row"><span>Jurisdiction</span><strong>On-site</strong></div>
+                    <div class="docket-row"><span>Last revised</span><strong>14:30 PDT</strong></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="status-band">
+            <strong>No public evacuation order is in effect.</strong>
+            <span>The northern service corridor remains restricted while containment verification continues.</span>
+        </div>
+
+        <div class="content-layout">
+            <section>
+                <div class="card summary-copy">
+                    <span class="section-label">Incident Summary</span>
+                    <h2>Response Overview</h2>
+                    <p>At approximately 06:40 PDT, site personnel identified an unauthorized transfer of containerized remediation material near the northern service corridor of {{facilityName}}. The transfer was stopped before the material left the controlled operating boundary.</p>
+                    <p>{{companyName}} established an incident perimeter and retained {{contractorName}} to support sample custody, material recovery, and independent remediation intake. No off-site migration has been confirmed.</p>
+
+                    <span class="section-label" style="margin-top: 1.35rem;">Response Activity</span>
+                    <table class="response-table">
+                        <thead><tr><th>Time</th><th>Action</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr><td>06:40</td><td>Unauthorized transfer identified by field operations</td><td>Confirmed</td></tr>
+                            <tr><td>06:52</td><td>Northern corridor isolated and material movement stopped</td><td>Complete</td></tr>
+                            <tr><td>07:18</td><td>External remediation contractor activated</td><td>Complete</td></tr>
+                            <tr><td>08:05</td><td>Field documentation and custody review initiated</td><td>In progress</td></tr>
+                            <tr><td>14:30</td><td>Containment boundary re-evaluated</td><td>Stable</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <aside>
+                <div class="card">
+                    <span class="section-label">Response Facts</span>
+                    <h2>Current Conditions</h2>
+                    <div class="fact-list">
+                        <div class="fact-row"><span>Facility</span><strong>{{facilityName}}</strong></div>
+                        <div class="fact-row"><span>Incident</span><strong>{{incidentName}}</strong></div>
+                        <div class="fact-row"><span>Primary constituent</span><strong>Mercury</strong></div>
+                        <div class="fact-row"><span>Response lead</span><strong>EMC ERO</strong></div>
+                        <div class="fact-row"><span>Contractor</span><strong>{{contractorName}}</strong></div>
+                        <div class="fact-row"><span>Air monitoring</span><strong>Within limits</strong></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <span class="section-label">Community Guidance</span>
+                    <h2>Public Instructions</h2>
+                    <ul class="guidance-list">
+                        <li>Do not enter marked service roads or cross temporary control barriers.</li>
+                        <li>Do not handle containers, labels, placards, or roadside field materials.</li>
+                        <li>Reference docket {{fieldPacketCode}} when contacting the remediation intake identified on posted field notices.</li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+
+        <section class="field-section">
+            <div class="section-heading">
+                <div>
+                    <span class="section-label">Released Field Record</span>
+                    <h2>Response Documentation</h2>
+                </div>
+                <p>Public release set 03 · Original image sequence preserved</p>
+            </div>
+
+            <div class="incident-grid">
+                {{#each photoSlots}}
+                <figure class="card incident-card">
+                    <img src="{{image}}" alt="{{title}}">
+                    <figcaption class="photo-copy">
+                        <div class="photo-meta"><span>{{reference}}</span><span>{{capturedAt}}</span></div>
+                        <h3>{{title}}</h3>
+                        <p>{{clue}}</p>
+                    </figcaption>
+                </figure>
+                {{/each}}
+            </div>
+        </section>
+
+        <section class="public-actions">
+            <div class="card action-card">
+                <span class="number">01 / ACCESS</span>
+                <h3>Observe Site Controls</h3>
+                <p>Respect temporary closures and instructions posted by field-response personnel.</p>
+            </div>
+            <div class="card action-card">
+                <span class="number">02 / REPORT</span>
+                <h3>Reference The Docket</h3>
+                <p>Use {{fieldPacketCode}} in all communications concerning the response action.</p>
+            </div>
+            <div class="card action-card">
+                <span class="number">03 / UPDATES</span>
+                <h3>Monitor Official Notices</h3>
+                <p>Material updates will be published through this public bulletin and corporate notice channel.</p>
+            </div>
+        </section>
+
+        <div class="utility-panel">
+            <div>
+                <strong>Authorized systems</strong>
+                <span>Restricted access for approved remediation partners and company personnel.</span>
+            </div>
+            <div class="utility-actions">
+                <a class="button button-secondary" href="/contractor-login">Authorized Partner Access</a>
+                <a class="button button-secondary" href="/">Corporate Site</a>
+            </div>
+        </div>
+    </main>
+    {{> footer}}
+</body>
+</html>

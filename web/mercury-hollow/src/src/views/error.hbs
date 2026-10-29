@@ -1,0 +1,52 @@
+{{> head pageTitle="Access Denied" customStyles="
+        .error-card { text-align: center; padding: 2.75rem 2.25rem; }
+        .error-icon {
+            width: 64px; height: 64px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1.25rem;
+            font-size: 1.9rem;
+            background: var(--err-bg);
+            border: 1px solid var(--err-line);
+            border-radius: 50%;
+        }
+        .error-card h1 { color: var(--err-text); font-size: 1.5rem; }
+        .error-message { color: var(--text); margin-bottom: 1.5rem; }
+        .error-details {
+            background: var(--sand);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+        .error-code {
+            font-family: var(--mono);
+            font-weight: 600;
+            color: var(--err-text);
+            margin-bottom: 0.25rem;
+        }
+        .help-text { color: var(--muted); font-size: 0.85rem; margin-top: 1.25rem; }
+"}}
+<body>
+    {{> company-header subtitle="Security Access Control"}}
+    <main class="page page-narrow page-center" style="max-width: 540px;">
+        <div class="card error-card">
+            {{> error-page
+                icon="🚫"
+                errorTitle="Access Denied"
+                errorMessage="Security violation detected. You do not have authorization to access this resource."
+                errorDetails=true
+                errorCode=errorCode
+                errorDetail=errorMessage
+                errorDescription="Your session may have expired or you need to re-authenticate."
+                returnButton=true
+                returnUrl="/login"
+                returnButtonText="Return to Employee Portal"
+                helpText="If you believe this is an error, please contact your system administrator."
+            }}
+        </div>
+    </main>
+    {{> footer}}
+</body>
+</html>

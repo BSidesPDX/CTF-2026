@@ -1,0 +1,12 @@
+[package]
+name = "acctd"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "acctd"
+path = "src/main.rs"
+
+[profile.release]
+opt-level = 2

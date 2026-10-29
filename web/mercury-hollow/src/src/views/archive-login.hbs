@@ -1,0 +1,149 @@
+{{> head pageTitle=title customStyles="
+        .archive-auth-shell {
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+            overflow: hidden;
+            padding: 0;
+        }
+        .archive-context {
+            position: relative;
+            overflow: hidden;
+            padding: 2.4rem;
+            color: #d9e3eb;
+            background: linear-gradient(145deg, #0b1926 0%, #173854 100%);
+        }
+        .archive-context::after {
+            content: '';
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            right: -130px;
+            bottom: -150px;
+            border: 42px solid rgba(223, 165, 97, 0.08);
+            border-radius: 50%;
+        }
+        .archive-context .kicker { color: var(--gold); }
+        .archive-context h1 { color: #fff; font-size: 2rem; max-width: 12ch; }
+        .archive-context > p { color: #aebfcd; max-width: 46ch; }
+        .classification {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin: 1rem 0 1.5rem;
+            padding: 0.32rem 0.7rem;
+            border: 1px solid rgba(223, 165, 97, 0.38);
+            border-radius: 999px;
+            color: #f0c58f;
+            font-size: 0.66rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+        .classification::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--gold);
+        }
+        .context-records { border-top: 1px solid rgba(255, 255, 255, 0.12); }
+        .context-record {
+            display: grid;
+            grid-template-columns: 0.8fr 1.2fr;
+            gap: 1rem;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            font-size: 0.8rem;
+        }
+        .context-record span { color: #8298aa; }
+        .context-record code {
+            padding: 0;
+            border: 0;
+            background: none;
+            color: #e7edf2;
+            text-align: right;
+        }
+        .archive-auth-form { padding: 2.4rem; background: var(--card); }
+        .archive-auth-form h2 { font-size: 1.35rem; margin-bottom: 0.3rem; }
+        .archive-auth-form .form-lead { color: var(--muted); font-size: 0.88rem; margin-bottom: 1.4rem; }
+        .realm-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.65rem 0;
+            margin-bottom: 1.2rem;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            color: var(--muted);
+            font-size: 0.76rem;
+        }
+        .realm-line code { border: 0; background: none; padding: 0; color: var(--ink); }
+        .access-note {
+            margin-top: 1.15rem;
+            color: var(--muted);
+            font-size: 0.76rem;
+            line-height: 1.5;
+        }
+        @media (max-width: 760px) {
+            .archive-auth-shell { grid-template-columns: 1fr; }
+            .archive-context, .archive-auth-form { padding: 1.65rem; }
+            .archive-context h1 { max-width: none; }
+        }
+"}}
+<body>
+    {{> company-header subtitle="Controlled Records Services"}}
+    <main class="page page-center" style="max-width: 980px;">
+        <div class="card archive-auth-shell">
+            <section class="archive-context">
+                <span class="kicker">Controlled Records System</span>
+                <h1>{{projectCode}} Records Exchange</h1>
+                <p>External access gateway for retained remediation, custody, and emergency-control records.</p>
+                <div class="classification">Restricted Operations</div>
+
+                <div class="context-records">
+                    <div class="context-record">
+                        <span>Archive realm</span>
+                        <code>JANUS-EXT</code>
+                    </div>
+                    <div class="context-record">
+                        <span>Case packet</span>
+                        <code>{{fieldPacketCode}}</code>
+                    </div>
+                    <div class="context-record">
+                        <span>Facility</span>
+                        <code>{{facilityName}}</code>
+                    </div>
+                    <div class="context-record">
+                        <span>Record class</span>
+                        <code>REMEDIATION</code>
+                    </div>
+                </div>
+            </section>
+
+            <section class="archive-auth-form">
+                <span class="kicker">Identity Gateway</span>
+                <h2>Authenticate To Archive</h2>
+                <p class="form-lead">Use the archive principal issued with the approved transfer package.</p>
+
+                {{> alert-message}}
+
+                <div class="realm-line">
+                    <span>Target realm</span>
+                    <code>JANUS-EXT / AR-03</code>
+                </div>
+
+                <form method="POST" action="/archive-login">
+                    {{> form-group fieldId="username" fieldName="username" labelText="Archive Principal" inputType="text" required=true}}
+                    {{> form-group fieldId="password" fieldName="password" labelText="Access Phrase" inputType="password" required=true}}
+                    <button type="submit">Authenticate</button>
+                </form>
+
+                <p class="access-note">Authentication activity is retained under EMC records policy. Accounts are provisioned through offline transfer packages and cannot be recovered through this gateway.</p>
+            </section>
+        </div>
+
+        {{> navigation-links links=links}}
+    </main>
+    {{> footer}}
+</body>
+</html>

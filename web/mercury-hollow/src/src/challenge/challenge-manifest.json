@@ -1,0 +1,32 @@
+{
+  "companyName": "Ellingson Mineral Corporation",
+  "contractorName": "Northline Remediation",
+  "facilityName": "Bracken Ridge",
+  "facilityCode": "bracken-ridge",
+  "incidentName": "Mercury Hollow",
+  "incidentCode": "mercury-hollow",
+  "projectCode": "JANUS",
+  "fieldPacketCode": "BR-MH-0427",
+  "contractorLogin": {
+    "username": "northline",
+    "password": "spill-0427"
+  },
+  "archiveLogin": {
+    "username": "janus.archive",
+    "password": "hollow-core-771"
+  },
+  "superadminRoute": "/ops/bracken-ridge/mercury-hollow/superadmin",
+  "superadminLogin": {
+    "username": "director.voss",
+    "password": "JANUS-0427-hollow"
+  },
+  "tiffZipPassword": "bracken0427",
+  "finalPdfPassword": "mercury-janus-0427",
+  "flags": {
+    "phone": "pdx{the_dump_had_a_number}",
+    "tiff": "pdx{file_extensions_are_suggestions}",
+    "stego": "pdx{the_picture_was_talking}",
+    "superadmin": "pdx{the_real_admin_was_off_the_books}",
+    "final": "pdx{the_final_dump_was_inside_the_pdf}"
+  }
+}

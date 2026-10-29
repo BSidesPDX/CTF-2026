@@ -1,0 +1,59 @@
+{{> head pageTitle="Administrative Panel" customStyles="
+        .admin-toolbar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.75rem;
+        }
+        .admin-toolbar .page-head { margin-bottom: 0; }
+        .admin-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .section-count { color: var(--muted); font-size: 0.85rem; font-weight: 400; }
+"}}
+<body>
+    {{> company-header subtitle="Administrative Control Panel"}}
+    <main class="page">
+        <div class="admin-toolbar">
+            <div class="page-head">
+                <span class="kicker">Administration</span>
+                <h1>Administrative Panel</h1>
+                <p class="page-lead">Manage employee permissions and access levels.</p>
+            </div>
+            <div class="admin-actions">
+                <a href="/secret" class="button button-secondary">Corporate Portal</a>
+                <a href="/logout" class="button button-secondary">Logout</a>
+            </div>
+        </div>
+
+        {{> alert-message}}
+
+        <div class="card">
+            <h2>Standard Employees</h2>
+            {{#if users.length}}
+            <div class="user-list">
+                {{#each users}}
+                {{> user-item}}
+                {{/each}}
+            </div>
+            {{else}}
+            <p class="section-count">No standard employees found.</p>
+            {{/if}}
+        </div>
+
+        <div class="card">
+            <h2>Administrative Personnel</h2>
+            {{#if adminUsers.length}}
+            <div class="user-list">
+                {{#each adminUsers}}
+                {{> user-item}}
+                {{/each}}
+            </div>
+            {{else}}
+            <p class="section-count">No administrative personnel found.</p>
+            {{/if}}
+        </div>
+    </main>
+    {{> footer}}
+</body>
+</html>
