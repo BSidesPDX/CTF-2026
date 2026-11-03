@@ -14,7 +14,7 @@ Author: Alex
 
 ## Walkthrough
 
-Solve script in `solution/`.
+The challenge was set up with a naive LLM with a number of personalities, and a decision model gating the call. The different personalities represent the different people (receptionist, executives, etc) in the office. The decision model listening in to the conversation would terminate the call if it detected a social engineering attack. You needed to impersonate the CFO to the receptionist, be transferred to an assistant upstairs, where they would read off the password on the sticky note (flag) to you.
 
 ## Flag
 
